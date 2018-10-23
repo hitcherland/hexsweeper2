@@ -3,20 +3,97 @@
         <meta charset="utf-8">
 		<style>
 			body {
-				background: black;
+				background: #282828;
 				margin: 0;
 			}
 
-			canvas {
+			svg {
 				display: block;
 				width: 100vmin;
 				height: 100vmin;
-				margin: auto;	
+				margin: auto;
+                background: black;
 			}
 		</style>
+        <script type="text/javascript" src="js/snap.svg-min.js"></script>
     </head>
     <body>
-        <script type="text/javascript" src="js/processing.min.js"></script>
-		<canvas data-processing-sources="hexsweeper.pde"></canvas>
+        <svg viewbox='0 0 100 100'></svg>
+        <script>
+            function makeHex( radius ) {
+                var hexVectors = [];
+                for(var i=0; i<6; i+=1) {
+                    hexVectors.push( 
+                        innerRadius * Math.sin( i * Math.PI / 3 ), 
+                        innerRadius * Math.cos( i * Math.PI / 3 )
+                    )
+                }
+
+                var hex = s.polygon(hexVectors);
+                hex.attr({
+                    fill: "#383838",
+                    "fill-opacity": 0,
+                    stroke: "#00a",
+                    strokeWidth: 0.5,
+                    filter: s.filter(Snap.filter.shadow(
+                        0, 0,
+                        1,
+                        "#faf",
+                        0.3,
+                    )),
+                });
+
+                return hex;
+            }
+
+            function defaultMouseover() {
+                this.animate({ "fill-opacity": 1, }, 300);
+            }
+
+            function defaultMouseout() {
+                this.animate({ "fill-opacity": 0, }, 300);
+            }
+
+            function makeGrid( innerRadius, outerRadius ) {
+                var tmp_hex = makeHex( innerRadius );
+                var hexes = [];
+                for( var h=-outerRadius; h<=outerRadius; h=h+1 ) {
+                    var H = Math.abs( h );
+                    for( var j=-outerRadius; j<=outerRadius; j=j+1 ) {
+                        var J = Math.abs( j );
+                        if( Math.abs( h + j ) > outerRadius)
+                            continue;
+                        var x = cx + h * _h + j * _j[ 0 ];
+                        var y = cy + j * _j[ 1 ];
+                        var hex = tmp_hex.clone();
+                        var m = hex.transform().localMatrix;
+                        m.translate( x, y );
+                        hex.transform( m ); 
+                        hexes.push( hex );
+
+                        hex.mouseover( defaultMouseover ).mouseout( defaultMouseout );
+
+                    }
+                }
+                tmp_hex.remove();
+                return hexes;
+            }
+        
+            var s = Snap( 'svg' );
+            var outerRadius = 6; 
+            var width = 100;
+            var cx = 50;
+            var cy = 50;
+
+            var _j = [];
+            var innerRadius, outerRadius, _h;
+            innerRadius = 0.5 * ( width - 1 ) / ( ( 2 * outerRadius + 1 ) * Math.cos( Math.PI / 6 ) );
+            _h = 2 * innerRadius * Math.cos( Math.PI / 6 );
+            _j[ 0 ] = innerRadius * Math.cos( Math.PI / 6 );
+            _j[ 1 ] = 2 * _j[ 0 ] * Math.cos( Math.PI / 6 );
+
+            var hexes = makeGrid( innerRadius, outerRadius );
+
+        </script>
 	</body>
 </html>
