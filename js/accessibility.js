@@ -3,29 +3,82 @@
 // these two schemes have optimum contrast, but currently don't cater for 
 // colour blindness
 
-var defaultColourScheme = {
+var darkColourScheme = {
     'background': '#000',
-    'stroke': '#fff',
-    'blankFill': '#000',
-    'flagFill': '#77f',
-    'freeFill': '#7f7',
-    'mineFill': '#f77',
-    'iconFill': '#fff',
-    'iconFill:hover': '#aaa',
+    'default': {
+        'normal': { 'stroke': '#fff', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 }
+    },
+    'blank': {
+        'hover': { 'fill': '#aaa', 'strokeWidth': 1.0 }
+    },
+    'icon': {
+        'normal': { 'fill': '#fff' },
+        'hover': { 'fill': '#aaa', 'strokeWidth': 1.0 },
+    },
+    'flag': {
+        'normal': { 'fill': '#77f' },
+        'hover': { 'fill': '#aaf', 'strokeWidth': 1.0 },
+    },
+    'free': {
+        'normal': { 'fill': '#7f7' },
+        'hover': { 'fill': '#afa', 'strokeWidth': 1.0 },
+    },
+    'mine': {
+        'normal': { 'fill': '#f77' },
+        'hover': { 'fill': '#faa', 'strokeWidth': 1.0 },
+    },
 };
 
-var invertColourScheme = {
+var brightColourScheme = {
     'background': '#fff',
-    'stroke': '#000',
-    'blankFill': '#fff',
-    'flagFill': '#00f',
-    'freeFill': '#0f0',
-    'mineFill': '#f00',
-    'iconFill': '#000',
-    'iconFill:hover': '#555',
+    'default': {
+        'normal': { 'stroke': '#000', 'fill': 'rgba(255,255,255,0)', 'strokeWidth': 0.5 }
+    },
+    'blank': {
+        'hover': { 'fill': '#555', 'strokeWidth': 1.0 }
+    },
+    'icon': {
+        'normal': { 'fill': '#000' },
+        'hover': { 'fill': '#555', 'strokeWidth': 1.0 },
+    },
+    'flag': {
+        'normal': { 'fill': '#00f' },
+        'hover': { 'fill': '#55f', 'strokeWidth': 1.0 },
+    },
+    'free': {
+        'normal': { 'fill': '#0f0' },
+        'hover': { 'fill': '#5f5', 'strokeWidth': 1.0 },
+    },
+    'mine': {
+        'normal': { 'fill': '#f00' },
+        'hover': { 'fill': '#f55', 'strokeWidth': 1.0 },
+    },
 };
 
-var colourScheme = defaultColourScheme;
+function getSubScheme( scheme /*, *priorities*/ ) {
+    var priority = Array.prototype.slice.call (arguments, 1);
+    priority.push( 'default' );
+    var subScheme = { 'normal': {}, 'hover': {}, 'active': {} };
+    var keys = Object.keys( subScheme );
+    for( var i=0; i<priority.length; i++ ) {
+        var p = scheme[ priority[ i ] ]; 
+        for( var j=0; j<keys.length; j++ ) {
+            var key = keys[ j ];
+            if( p[ key ] === undefined )
+                continue;
+            var jkeys = Object.keys( p[ key ] );
+            for( var k=0; k<jkeys.length; k++ ) {
+                var jkey = jkeys[ k ];
+                if( subScheme[ key ][ jkey ] === undefined ) {
+                    subScheme[ key ][ jkey ] = p[ key ][ jkey ];
+                }
+            }
+        }
+    }
+    return subScheme;
+}
+
+var colourScheme = darkColourScheme;
 
 eve.on( 'updateColourScheme', function( scheme ) {
     $( 'body' ).css( 'background-color', scheme.background);

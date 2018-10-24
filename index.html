@@ -27,55 +27,30 @@
                     hexVectors.push( 
                         innerRadius * Math.sin( i * Math.PI / 3 ), 
                         innerRadius * Math.cos( i * Math.PI / 3 )
-                    )
+                    );
                 }
-
                 var hex = s.polygon(hexVectors);
-                hex.attr({
-                    "fill-opacity": 0,
-                    stroke: colourScheme.stroke,
-                    strokeWidth: 0.5,
-                    //filter: s.filter(Snap.filter.shadow( 0, 0, 1, "#fff", 0.3 )),
-                });
-
                 return hex;
             }
 
             function defaultMouseover() { 
-                this.animate({ 
-                    'fill-opacity': 1,
-                    'strokeWidth': 1.5,
-                }, 300, mina.easein); 
+                var subScheme = this.data( this.data( 'state' ) );
+                this.animate( subScheme.hover, 300, mina.easein );
             }
-            function defaultMouseout() { this.animate({ 
-                'fill-opacity': this.data( 'mouseOut' ),
-                'strokeWidth': 0.5,
-            }, 300, mina.easeout); }
-            function onClick( ev ) { onLeftClick.apply( this, ev ); }
-            function onDoubleClick( ev ) { onRightClick.apply( this, ev ); }
+            function defaultMouseout() {
+                var subScheme = this.data( this.data( 'state' ) );
+                this.animate( subScheme.normal, 300, mina.easeout );
+            }
+            function onClick( ev ) { toggleMine.apply( this, ev ); }
 
-            function onLeftClick( ev ) {
+            function toggleMine( ev ) {
                 if( this.data( 'state' ) == 'blank' ) {
                     this.data( 'state', 'mine' )
-                    this.data( 'mouseOut', 0.8 );
-                    this.attr({'fill': this.data( 'mineFill' )}); 
                 } else if( this.data( 'state' ) == 'mine' ) {
                     this.data( 'state', 'blank' )
-                    this.data( 'mouseOut', 0 );
-                    this.attr({'fill': this.data( 'blankFill' )}); 
                 } 
-            }
-
-            function onRightClick( ev ) {
-                if( this.data( 'state' ) == 0 ) {
-                    this.data( 'state', 'flag' )
-                    this.data( 'mouseOut', 0.8 );
-                    this.attr({'fill': this.data( 'flagFill' )}); 
-                } else if( this.data( 'state' ) == 'flag' ) {
-                    this.data( 'state', 'blank' )
-                    this.data( 'mouseOut', 0 );
-                    this.attr({'fill': this.data( 'blankFill' )}); 
-                } 
+                var subScheme = this.data( this.data( 'state' ) );
+                this.animate( subScheme.hover, 100 );
             }
     
             function makeGrid( innerRadius, outerRadius ) {
@@ -96,22 +71,19 @@
                         hexes.push( hex );
 
                         hex.data( 'state', 'blank' );
-                        hex.data( 'mouseOut', 0 );
-
                         hex.mouseover( defaultMouseover )
                            .mouseout( defaultMouseout )
-                           .click( onClick )
-                           .dblclick( onDoubleClick );
+                           .click( onClick );
+//                           .dblclick( onDoubleClick );
 
                         var updateColour = function( h ) { 
-                            return function( scheme ) { 
-                                h.attr({ 'stroke': scheme.stroke }); 
-                                h.data( 'blankFill', scheme.blankFill );
-                                h.data( 'flagFill', scheme.flagFill );
-                                h.data( 'freeFill', scheme.freeFill );
-                                h.data( 'mineFill', scheme.mineFill );
-                                
-                                h.attr( 'fill', h.data( h.data( 'state' ) + 'Fill' ) );
+                            return function( scheme ) {
+                                h.data( 'blank', getSubScheme( scheme, 'blank' ) );
+                                h.data( 'free', getSubScheme( scheme, 'free' ) );
+                                h.data( 'mine', getSubScheme( scheme, 'mine' ) );
+                                h.data( 'flag', getSubScheme( scheme, 'flag' ) );
+                                var subScheme = h.data( h.data( 'state' ) );
+                                h.attr( subScheme.normal );
                             }
                         }
                         eve.on( 'updateColourScheme', updateColour( hex ) );
@@ -122,23 +94,20 @@
             }
 
             function setupOptions() {
-                optionsIcon.attr( 'width', 8 );
-                optionsIcon.attr( 'height', 8 );
-                var h = -outerRadius / 2;
-                var j = -outerRadius;
-                var x = cx + h * _h + j * _j[ 0 ];
-                var y = cy + j * _j[ 1 ];
-
-                optionsIcon.attr( 'x', 4 );
-                optionsIcon.attr( 'y', 4 );
+                optionsIcon.attr({
+                    'width': 8,
+                    'height': 8,
+                    'x': 4,
+                    'y': 4,
+                });
                 eve.on( 'updateColourScheme', function( scheme ) {
-                    optionsIcon.data( 'fill', scheme.iconFill );
-                    optionsIcon.data( 'fill:hover', scheme[ 'iconFill:hover' ] );
-                    optionsIcon.select( 'path' ).attr( 'fill', scheme.iconFill );
+                    var subScheme = getSubScheme( scheme, 'icon' );
+                    optionsIcon.data( 'subScheme', subScheme );
+                    optionsIcon.select( 'path' ).attr( subScheme.normal );
                     optionsIcon.mouseover(function() {
-                        this.select( 'path' ).animate({ 'fill': this.data( 'fill:hover' ), }, 300);
+                        this.select( 'path' ).animate( this.data( 'subScheme' ).hover, 100, mina.easein );
                     }).mouseout( function() {
-                        this.select( 'path' ).animate({ 'fill': this.data( 'fill' ), }, 300);
+                        this.select( 'path' ).animate( this.data( 'subScheme' ).normal, 100, mina.easeout );
                     });
                 });
                 eve( 'updateColourScheme', "self", colourScheme );
