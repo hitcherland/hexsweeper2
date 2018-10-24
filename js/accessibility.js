@@ -10,6 +10,8 @@ var defaultColourScheme = {
     'flagFill': '#77f',
     'freeFill': '#7f7',
     'mineFill': '#f77',
+    'iconFill': '#fff',
+    'iconFill:hover': '#aaa',
 };
 
 var invertColourScheme = {
@@ -19,6 +21,8 @@ var invertColourScheme = {
     'flagFill': '#00f',
     'freeFill': '#0f0',
     'mineFill': '#f00',
+    'iconFill': '#000',
+    'iconFill:hover': '#555',
 };
 
 var colourScheme = defaultColourScheme;

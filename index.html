@@ -4,10 +4,14 @@
 		<style>
 			body { margin: 0; }
 			svg {
-				display: block;
+                position: absolute;
 				width: 100vmin;
 				height: 100vmin;
 				margin: auto;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
 			}
 		</style>
         <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
@@ -109,6 +113,29 @@
                 return hexes;
             }
 
+            function setupOptions() {
+                optionsIcon.attr( 'width', 8 );
+                optionsIcon.attr( 'height', 8 );
+                var h = -outerRadius / 2;
+                var j = -outerRadius;
+                var x = cx + h * _h + j * _j[ 0 ];
+                var y = cy + j * _j[ 1 ];
+
+                optionsIcon.attr( 'x', 4 );
+                optionsIcon.attr( 'y', 4 );
+                eve.on( 'updateColourScheme', function( scheme ) {
+                    optionsIcon.data( 'fill', scheme.iconFill );
+                    optionsIcon.data( 'fill:hover', scheme[ 'iconFill:hover' ] );
+                    optionsIcon.select( 'path' ).attr( 'fill', scheme.iconFill );
+                    optionsIcon.mouseover(function() {
+                        this.select( 'path' ).animate({ 'fill': this.data( 'fill:hover' ), }, 300);
+                    }).mouseout( function() {
+                        this.select( 'path' ).animate({ 'fill': this.data( 'fill' ), }, 300);
+                    });
+                });
+                eve( 'updateColourScheme', "self", colourScheme );
+            }
+
             var outerRadius = 6; 
             var width = 100;
             var cx = 50;
@@ -120,12 +147,18 @@
             _h = 2 * innerRadius * Math.cos( Math.PI / 6 );
             _j[ 0 ] = innerRadius * Math.cos( Math.PI / 6 );
             _j[ 1 ] = 2 * _j[ 0 ] * Math.cos( Math.PI / 6 );
+
         
-            var s, hexOutlineColour, hexes;
+            var s, hexOutlineColour, hexes, optionsIcon;
             $().ready( function() {
                 s = Snap( 'svg' );
                 hexes = makeGrid( innerRadius, outerRadius );
                 eve( 'updateColourScheme', "self", colourScheme );
+                Snap.load( 'img/cog.svg', function( data ) {
+                    var q = s.add( data )
+                    optionsIcon = s.select( 'svg:last-child' );
+                    setupOptions();
+                });
             }); 
         </script>
 	</body>
