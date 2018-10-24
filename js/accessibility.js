@@ -9,22 +9,22 @@ var darkColourScheme = {
         'normal': { 'stroke': '#fff', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 }
     },
     'blank': {
-        'hover': { 'fill': '#aaa', 'strokeWidth': 1.0 }
+        'hover': { 'fill': '#a5a5a5', 'strokeWidth': 1.0 }
     },
     'icon': {
         'normal': { 'fill': '#fff' },
-        'hover': { 'fill': '#aaa', 'strokeWidth': 1.0 },
+        'hover': { 'fill': '#a5a5a5', 'strokeWidth': 1.0 },
     },
     'flag': {
-        'normal': { 'fill': '#77f' },
+        'normal': { 'fill': '#b95c00' },
         'hover': { 'fill': '#aaf', 'strokeWidth': 1.0 },
     },
     'free': {
-        'normal': { 'fill': '#7f7' },
+        'normal': { 'fill': '#008900' },
         'hover': { 'fill': '#afa', 'strokeWidth': 1.0 },
     },
     'mine': {
-        'normal': { 'fill': '#f77' },
+        'normal': { 'fill': '#ec0000' },
         'hover': { 'fill': '#faa', 'strokeWidth': 1.0 },
     },
 };
@@ -35,22 +35,22 @@ var brightColourScheme = {
         'normal': { 'stroke': '#000', 'fill': 'rgba(255,255,255,0)', 'strokeWidth': 0.5 }
     },
     'blank': {
-        'hover': { 'fill': '#555', 'strokeWidth': 1.0 }
+        'hover': { 'fill': '#505050', 'strokeWidth': 1.0 }
     },
     'icon': {
         'normal': { 'fill': '#000' },
-        'hover': { 'fill': '#555', 'strokeWidth': 1.0 },
+        'hover': { 'fill': '#505050', 'strokeWidth': 1.0 },
     },
     'flag': {
-        'normal': { 'fill': '#00f' },
-        'hover': { 'fill': '#55f', 'strokeWidth': 1.0 },
+        'normal': { 'fill': '#b95c00' },
+        'hover': { 'fill': '#ff0', 'strokeWidth': 1.0 },
     },
     'free': {
-        'normal': { 'fill': '#0f0' },
+        'normal': { 'fill': '#008700' },
         'hover': { 'fill': '#5f5', 'strokeWidth': 1.0 },
     },
     'mine': {
-        'normal': { 'fill': '#f00' },
+        'normal': { 'fill': '#ec0000' },
         'hover': { 'fill': '#f55', 'strokeWidth': 1.0 },
     },
 };
