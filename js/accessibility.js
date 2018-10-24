@@ -81,10 +81,11 @@ function getSubScheme( scheme /*, *priorities*/ ) {
 var colourScheme = darkColourScheme;
 
 eve.on( 'updateColourScheme', function( scheme ) {
-    $( 'body' ).css( 'background-color', scheme.background);
+    $( 'body' ).css( 'background-color', colourScheme.background);
 });
 
 function updateColourScheme( scheme ) {
+    colourScheme = scheme;
     eve( 'updateColourScheme', 'self', scheme );
 }
 

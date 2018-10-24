@@ -2,7 +2,7 @@
     <head>
         <meta charset="utf-8" name="viewport" content="width=device-width,user-scalable=no">
 		<style>
-			body { margin: 0; }
+			body { background: black; margin: 0; }
 			svg {
                 position: absolute;
 				width: 100vmin;
@@ -15,87 +15,14 @@
 			}
 		</style>
         <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="js/chance.min.js"></script>
         <script type="text/javascript" src="js/snap.svg-min.js"></script>
         <script type="text/javascript" src="js/accessibility.js"></script>
+        <script type="text/javascript" src="js/game.js"></script>
     </head>
     <body>
         <svg viewbox='0 0 100 100'></svg>
         <script>
-            function makeHex( radius ) {
-                var hexVectors = [];
-                for(var i=0; i<6; i+=1) {
-                    hexVectors.push( 
-                        innerRadius * Math.sin( i * Math.PI / 3 ), 
-                        innerRadius * Math.cos( i * Math.PI / 3 )
-                    );
-                }
-                var hex = s.polygon(hexVectors);
-                return hex;
-            }
-
-            function defaultMouseover() { 
-                var subScheme = this.data( this.data( 'state' ) );
-                this.animate( subScheme.hover, 300, mina.easein );
-            }
-            function defaultMouseout() {
-                var subScheme = this.data( this.data( 'state' ) );
-                this.animate( subScheme.normal, 300, mina.easeout );
-            }
-    
-            function toggleMine( ev ) {
-                if( this.data( 'state' ) == 'blank' ) {
-                    this.data( 'state', 'mine' )
-                } else if( this.data( 'state' ) == 'mine' ) {
-                    this.data( 'state', 'blank' )
-                } 
-                var subScheme = this.data( this.data( 'state' ) );
-                this.animate( subScheme.hover, 100 );
-            }
-    
-            function makeGrid( innerRadius, outerRadius ) {
-                var tmp_hex = makeHex( innerRadius );
-                var hexes = [];
-                for( var h=-outerRadius; h<=outerRadius; h=h+1 ) {
-                    var H = Math.abs( h );
-                    for( var j=-outerRadius; j<=outerRadius; j=j+1 ) {
-                        var J = Math.abs( j );
-                        if( Math.abs( h + j ) > outerRadius)
-                            continue;
-                        var x = cx + h * _h + j * _j[ 0 ];
-                        var y = cy + j * _j[ 1 ];
-                        var hex = tmp_hex.clone();
-                        var m = hex.transform().localMatrix;
-                        m.translate( x, y );
-                        hex.transform( m ); 
-                        hexes.push( hex );
-
-                        hex.data( 'state', 'blank' );
-                        hex.mouseover( defaultMouseover )
-                           .mouseout( defaultMouseout )
-                           .mouseup( toggleMine )
-                           .touchstart( defaultMouseover )
-                           .touchcancel( defaultMouseout )
-                           .touchend( function(){ 
-                                toggleMine.call( this );
-                                defaultMouseout.call( this );
-                            });
-
-                        var updateColour = function( h ) { 
-                            return function( scheme ) {
-                                h.data( 'blank', getSubScheme( scheme, 'blank' ) );
-                                h.data( 'free', getSubScheme( scheme, 'free' ) );
-                                h.data( 'mine', getSubScheme( scheme, 'mine' ) );
-                                h.data( 'flag', getSubScheme( scheme, 'flag' ) );
-                                var subScheme = h.data( h.data( 'state' ) );
-                                h.attr( subScheme.normal );
-                            }
-                        }
-                        eve.on( 'updateColourScheme', updateColour( hex ) );
-                    }
-                }
-                tmp_hex.remove();
-                return hexes;
-            }
 
             function setupOptions() {
                 optionsIcon.attr({
@@ -117,28 +44,15 @@
                 eve( 'updateColourScheme', "self", colourScheme );
             }
 
-            var outerRadius = 6; 
-            var width = 100;
-            var cx = 50;
-            var cy = 50;
-
-            var _j = [];
-            var innerRadius, outerRadius, _h;
-            innerRadius = 0.5 * ( width - 1 ) / ( ( 2 * outerRadius + 1 ) * Math.cos( Math.PI / 6 ) );
-            _h = 2 * innerRadius * Math.cos( Math.PI / 6 );
-            _j[ 0 ] = innerRadius * Math.cos( Math.PI / 6 );
-            _j[ 1 ] = 2 * _j[ 0 ] * Math.cos( Math.PI / 6 );
-
-        
-            var s, hexOutlineColour, hexes, optionsIcon;
+            var s, optionsIcon, game;
             $().ready( function() {
-                s = Snap( 'svg' );
-                hexes = makeGrid( innerRadius, outerRadius );
-                eve( 'updateColourScheme', "self", colourScheme );
-                Snap.load( 'img/cog.svg', function( data ) {
+                s = Snap( "svg" );
+                Snap.load( "img/cog.svg", function( data ) {
                     var q = s.add( data )
-                    optionsIcon = s.select( 'svg:last-child' );
+                    optionsIcon = s.select( "svg:last-child" );
+                    game = new SimpleHexSweeper( s, 6, 0.25 );
                     setupOptions();
+                    eve( "updateColourScheme", "self", colourScheme );
                 });
             }); 
         </script>
