@@ -18,7 +18,7 @@
         <script type="text/javascript" src="js/snap.svg-min.js"></script>
         <script type="text/javascript" src="js/accessibility.js"></script>
     </head>
-    <body oncontextmenu="return false;">
+    <body>
         <svg viewbox='0 0 100 100'></svg>
         <script>
             function makeHex( radius ) {
@@ -41,8 +41,7 @@
                 var subScheme = this.data( this.data( 'state' ) );
                 this.animate( subScheme.normal, 300, mina.easeout );
             }
-            function onClick( ev ) { toggleMine.apply( this, ev ); }
-
+    
             function toggleMine( ev ) {
                 if( this.data( 'state' ) == 'blank' ) {
                     this.data( 'state', 'mine' )
@@ -73,8 +72,13 @@
                         hex.data( 'state', 'blank' );
                         hex.mouseover( defaultMouseover )
                            .mouseout( defaultMouseout )
-                           .click( onClick );
-//                           .dblclick( onDoubleClick );
+                           .mouseup( toggleMine )
+                           .touchstart( defaultMouseover )
+                           .touchcancel( defaultMouseout )
+                           .touchend( function(){ 
+                                toggleMine.call( this );
+                                defaultMouseout.call( this );
+                            });
 
                         var updateColour = function( h ) { 
                             return function( scheme ) {
