@@ -36,12 +36,11 @@
                     optionsIcon.data( 'subScheme', subScheme );
                     optionsIcon.select( 'path' ).attr( subScheme.normal );
                     optionsIcon.mouseover(function() {
-                        this.select( 'path' ).animate( this.data( 'subScheme' ).hover, 100, mina.easein );
+                        this.select( 'path' ).attr( this.data( 'subScheme' ).hover );
                     }).mouseout( function() {
-                        this.select( 'path' ).animate( this.data( 'subScheme' ).normal, 100, mina.easeout );
+                        this.select( 'path' ).attr( this.data( 'subScheme' ).normal );
                     });
                 });
-                eve( 'updateColourScheme', "self", colourScheme );
             }
 
             var s, optionsIcon, game;
