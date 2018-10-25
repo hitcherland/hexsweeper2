@@ -17,7 +17,6 @@ class SimpleHexSweeper {
 
         this.rebuild();
         this.remine();
-        eve( "updateColourScheme", "self", colourScheme );
     }
 
     rebuild() {
@@ -88,7 +87,7 @@ class SimpleHexSweeper {
                 var updateColour = function( h ) { 
                     return function( scheme ) {
                         h.data( "scheme", getSubScheme( scheme, "blank" ) );
-                        h.animate( h.data( "scheme" ).normal, 300 );
+                        h.attr( h.data( "scheme" ).normal );
                     }
                 }
                 eve.on( "updateColourScheme", updateColour( hex ) );
@@ -109,7 +108,6 @@ class SimpleHexSweeper {
         this.mines = chance.pick( this.hexes, this.mineRatio * this.hexes.length );
         this.mines.map( m => m.data( "is mine", true ) );
         this.frees = this.hexes.filter( x => ! x.data( "is mine" ) ); 
-        eve( "updateColourScheme", "self", colourScheme );
     }
 
     toggleMine( element ) {
