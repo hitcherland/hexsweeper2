@@ -3,6 +3,13 @@
         <meta charset="utf-8" name="viewport" content="width=device-width,user-scalable=no">
 		<style>
 			body { background: black; margin: 0; }
+            . { 
+                -webkit-user-select: none;  /* Chrome all / Safari all */
+                -moz-user-select: none;     /* Firefox all */
+                -ms-user-select: none;      /* IE 10+ */
+                user-select: none;          /* Likely future */ 
+            }
+
 			svg {
                 position: absolute;
 				width: 100vmin;
@@ -21,7 +28,61 @@
         <script type="text/javascript" src="js/game.js"></script>
     </head>
     <body>
-        <svg viewbox='0 0 100 100'></svg>
+        <svg viewbox='0 0 100 100'>
+            <style>
+                * {
+                    transition: all 1.0s;
+                    font-family: mono;
+                }
+    
+                .hex {
+                    cursor: default;
+                    -webkit-user-select: none;  /* Chrome all / Safari all */
+                    -moz-user-select: none;     /* Firefox all */
+                    -ms-user-select: none;      /* IE 10+ */
+                    user-select: none;          /* Likely future */ 
+                }
+
+                .hex > polygon {
+                    stroke: white;
+                    stroke-width: 0.5;
+                    fill: rgba(0,0,0,0);
+                }
+
+                .hex > text {
+                    stroke: none;
+                    fill: white;
+                    font-weight: bold;
+                    opacity: 0;
+                }
+
+                .hex:hover > polygon {
+                    stroke-width: 1;
+                    z-index: 1;
+                }
+
+                .hex:hover > text {
+                    opacity: 1;
+                }
+
+                .hex > text:after {
+                    content: "hello";
+                    fill: white;
+                }
+
+                .hex.flag > polygon, .hex.mine > polygon, .hex.free > polygon {
+                    transition: all 0.5s;
+                }
+                .hex.flag > text, .hex.mine > text, .hex.free > text {
+                    opacity: 1;
+                }
+
+                .hex.free > polygon { fill: #008900; }
+                .hex.mine > polygon { fill: #ec0000; }
+                .hex.flag > polygon { fill: #b95c00; }
+
+            </style>
+        </svg>
         <script>
 
             function setupOptions() {
@@ -51,7 +112,7 @@
                     optionsIcon = s.select( "svg:last-child" );
                     game = new SimpleHexSweeper( s, 6, 0.25 );
                     setupOptions();
-                    eve( "updateColourScheme", "self", colourScheme );
+                    //eve( "updateColourScheme", "self", colourScheme );
                 });
             }); 
         </script>

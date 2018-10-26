@@ -5,18 +5,48 @@ class SimpleHexSweeper {
         this.outerRadius = outerRadius;
 
         this.innerRadius = 0;
-        this.hexes = [];
-        this.mines = [];
-        this.flags = [];
-        this.frees = [];
+        this.hexes = Snap.set();
+        this.mines = Snap.set();
+        this.flags = Snap.set();
+        this.frees = Snap.set();
 
         this._j = [];
         this._h = 0;
 
-        this.selectAction = undefined;
-
         this.rebuild();
-        this.remine();
+        this.exes
+        this.hexes.forEach( x => x.data( 'game', this ) );
+        this.hexes.forEach(
+            hex => hex.mouseup( this.initialise )
+                      .touchend( this.initialise )
+        );
+        this.first = true;
+        this.first = true;
+    }
+
+    initialise( ev ) {
+        ev.preventDefault();
+        var game = this.data( 'game' );
+        game.mines = Snap.set();
+        game.flags = Snap.set();
+        game.frees = Snap.set();
+
+        game.hexes.forEach( hex => hex.attr( "class", "hex" ) );
+        game.hexes.forEach( hex => hex.select( "text" ).node.textContent = "?" );
+
+
+        game.hexes.forEach(
+            hex => hex.mouseup( this.toggleMine )
+                      .touchend( this.toggleMine )
+                      .unmouseup( this.initialise )
+                      .untouchend( this.initialise )
+        );
+
+        if( game.first ) {
+            game.remine( this );
+            game.first = false;
+        }
+        game.toggleMine.apply( this );
     }
 
     rebuild() {
@@ -38,14 +68,12 @@ class SimpleHexSweeper {
                 );
             }
             var hex = this.hexGroup.g();
+            hex.attr( 'class', 'hex' );
             hex.polygon( hexVectors );
+            var text = hex.text( -this.innerRadius / 3 , +this.innerRadius/3, '?' );
+
+            text.attr({ 'font-size': this.innerRadius });
             return hex;
-        }
-        function defaultMouseover() { 
-            this.animate( this.data( "scheme" ).hover, 300, mina.easein );
-        }
-        function defaultMouseout() {
-            this.animate( this.data( "scheme" ).normal, 300, mina.easeout );
         }
 
         this.hexGroup = this.snap.g({id:"hexes"});
@@ -55,42 +83,21 @@ class SimpleHexSweeper {
         }
         var template_hex = makeHex.apply( this );
 
-        this.hexes = [];
-        var scheme = getSubScheme( colourScheme, "blank" );
+        this.hexes = Snap.set();
         for( var h=-this.outerRadius; h<=this.outerRadius; h=h+1 ) {
-            var H = Math.abs( h );
             for( var j=-this.outerRadius; j<=this.outerRadius; j=j+1 ) {
-                var J = Math.abs( j );
                 if( Math.abs( h + j ) > this.outerRadius)
                     continue;
                 var x = cx + h * this._h + j * this._j[ 0 ];
                 var y = cy + j * this._j[ 1 ];
+
                 var hex = template_hex.clone();
+                hex.data( 'position', [ h, j ] );
+
                 var m = hex.transform().localMatrix;
                 m.translate( x, y );
                 hex.transform( m ); 
                 this.hexes.push( hex );
-
-                hex.data( "state", "blank" );
-                hex.data( "scheme", scheme );
-                hex.attr( scheme.normal);
-                hex.mouseover( defaultMouseover )
-                   .mouseout( defaultMouseout )
-                   .mouseup( this.toggleMine )
-                   .touchstart( defaultMouseover )
-                   .touchcancel( defaultMouseout )
-                   .touchend( function(){ 
-                        toggleMine.call( this );
-                        defaultMouseout.call( this );
-                    });
-
-                var updateColour = function( h ) { 
-                    return function( scheme ) {
-                        h.data( "scheme", getSubScheme( scheme, "blank" ) );
-                        h.attr( h.data( "scheme" ).normal );
-                    }
-                }
-                eve.on( "updateColourScheme", updateColour( hex ) );
             }
         }
         template_hex.remove();
@@ -98,28 +105,95 @@ class SimpleHexSweeper {
         return this.hexes;
     }
 
-    remine() {
+    neighbours( hex ) {
+        var neighbour_offsets = [ 
+            [  0, +1 ],
+            [  0, -1 ],
+            [ -1,  0 ],
+            [ +1,  0 ],
+            [ +1, -1 ],
+            [ -1, +1 ],
+        ];
+        var position = hex.data( 'position' );
+        var neighbour_positions = neighbour_offsets.map(
+            p => [ position[ 0 ] + p[ 0 ], position[ 1 ] + p[ 1 ] ].join( "x" )
+        );
+        var neighbours = this.hexes.items.filter(
+            x => neighbour_positions.includes( x.data( 'position' ).join( "x" ) )
+        );
+        return neighbours;
+    }
+
+    remine( ignore ) {
         var scheme = getSubScheme( colourScheme, "blank" );
-        this.hexes.map( h => h.data({
-            "is mine": false,
-            "state": "blank",
-            "scheme": scheme
-        }));
-        this.mines = chance.pick( this.hexes, this.mineRatio * this.hexes.length );
-        this.mines.map( m => m.data( "is mine", true ) );
-        this.frees = this.hexes.filter( x => ! x.data( "is mine" ) ); 
+        this.hexes.forEach( h => h.data({ "is mine": false }));
+        this.hexes.forEach( h => h.attr( "class", "hex" ) );
+        var hexes = this.hexes.items.filter( x => x != ignore );
+        this.mines = Snap.set( ...chance.pick( hexes, this.mineRatio * this.hexes.length ) );
+        this.mines.forEach( m => m.data( "is mine", true ) );
+        this.frees = Snap.set( ...this.hexes.items.filter( x => ! x.data( "is mine" ) ) );  
+        this.hexes.forEach(
+            hex => hex.mouseup( this.toggleMine )
+                      .touchend( this.toggleMine )
+        )
+            
     }
 
     toggleMine( element ) {
-        if( this.data( "state" ) == "blank" ) {
+        var game = this.data( 'game' );
+        if( game.mines.length == 0 ) {
+            game.remine( this );
+            return;
+        }
+        
+        if( this.attr( "class" ) == "hex" ) {
             if( this.data( "is mine" ) ) {
-                this.data( "scheme", getSubScheme( colourScheme, "mine" ) );
-                this.data( "state", "mine" )
+                this.attr( "class", "hex mine" );
+                this.select( 'text' ).node.textContent = '*';
+                game.endGame();
             } else {
-                this.data( "scheme", getSubScheme( colourScheme, "free" ) );
-                this.data( "state", "free" )
+                this.attr( "class", "hex free" )
+                var neighbours = game.neighbours( this );
+                var mine_neighbours = neighbours.filter(
+                    x => x.data( 'is mine' )
+                );
+                if( mine_neighbours.length == 0 ) {
+                    this.select( 'text' ).node.textContent = "";
+                    neighbours.map( hx => game.toggleMine.call( hx ) );
+                } else {
+                    this.select( 'text' ).node.textContent = mine_neighbours.length;
+                }
             }
-        } 
-        this.animate( this.data( "scheme" ).hover, 100 );
+        }
+    }
+
+    endGame() {
+        console.log( "endGame" );
+        function activate() {
+            if( this.attr( "class" ) == "hex" ) {
+                if( this.data( "is mine" ) ) {
+                    this.attr( "class", "hex mine" );
+                    this.select( 'text' ).node.textContent = '*';
+                } else {
+                    this.attr( "class", "hex free" )
+                    var neighbours = game.neighbours( this );
+                    var mine_neighbours = neighbours.filter(
+                        x => x.data( 'is mine' )
+                    );
+                    if( mine_neighbours.length == 0 ) {
+                        this.select( 'text' ).node.textContent = "";
+                    } else {
+                        this.select( 'text' ).node.textContent = mine_neighbours.length;
+                    }
+                }
+            }
+        }
+        this.hexes.forEach( hx => activate.apply( hx ) );
+        this.hexes.forEach(
+            hex => hex.unmouseup( this.toggleMine )
+                      .untouchend( this.toggleMine )
+                      .mouseup( this.initialise )
+                      .touchend( this.initialise )
+        );
     }
 }

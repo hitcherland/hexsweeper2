@@ -6,7 +6,19 @@
 var darkColourScheme = {
     'background': '#000',
     'default': {
-        'normal': { 'stroke': '#fff', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 }
+        'normal': { 'stroke': '#fff', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 },
+        'hover': { 'stroke': '#fff', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 },
+        'activate': { 'stroke': '#fff', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 }
+    },
+    'text': {
+        'normal': { 'stroke': '#000', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 },
+        'hover': { 'stroke': '#000', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 },
+        'activate': { 'stroke': '#000', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 }
+    },
+    'hidden-text': {
+        'normal': { 'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 },
+        'hover': { 'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 },
+        'activate': { 'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 }
     },
     'blank': {
         'hover': { 'fill': '#a5a5a5', 'strokeWidth': 1.0 }
@@ -32,7 +44,19 @@ var darkColourScheme = {
 var brightColourScheme = {
     'background': '#fff',
     'default': {
-        'normal': { 'stroke': '#000', 'fill': 'rgba(255,255,255,0)', 'strokeWidth': 0.5 }
+        'normal': { 'stroke': '#000', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 },
+        'hover': { 'stroke': '#000', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 },
+        'activate': { 'stroke': '#000', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 }
+    },
+    'text': {
+        'normal': { 'stroke': '#000', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 },
+        'hover': { 'stroke': '#000', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 },
+        'activate': { 'stroke': '#000', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.5 }
+    },
+    'hidden-text': {
+        'normal': { 'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.0 },
+        'hover': { 'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.0 },
+        'activate': { 'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(0,0,0,0)', 'strokeWidth': 0.0 }
     },
     'blank': {
         'hover': { 'fill': '#505050', 'strokeWidth': 1.0 }
