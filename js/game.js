@@ -50,7 +50,7 @@ class SimpleHexSweeper {
     }
 
     rebuild() {
-        var width = this.snap.node.width.baseVal.value;
+        var width = this.snap.node.width.baseVal.valueInSpecifiedUnits;
         var cx = width / 2;
         var cy = width / 2; 
 
