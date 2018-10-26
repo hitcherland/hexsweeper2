@@ -18,7 +18,7 @@ class SimpleHexSweeper {
         this.hexes.forEach( x => x.data( 'game', this ) );
         this.hexes.forEach(
             hex => hex.mouseup( this.initialise )
-                      .touchend( this.initialise )
+//                      .touchend( this.initialise )
         );
         this.first = true;
         this.first = true;
@@ -37,16 +37,16 @@ class SimpleHexSweeper {
 
         game.hexes.forEach(
             hex => hex.mouseup( this.toggleMine )
-                      .touchend( this.toggleMine )
+//                     .touchend( this.toggleMine )
                       .unmouseup( this.initialise )
-                      .untouchend( this.initialise )
+//                      .untouchend( this.initialise )
         );
 
         if( game.first ) {
             game.remine( this );
             game.first = false;
         }
-        game.toggleMine.apply( this );
+        game.toggleMine.call( this, ev );
     }
 
     rebuild() {
@@ -81,7 +81,7 @@ class SimpleHexSweeper {
         if( prev !== null ) {
             prev.remove()
         }
-        var template_hex = makeHex.apply( this );
+        var template_hex = makeHex.call( this );
 
         this.hexes = Snap.set();
         for( var h=-this.outerRadius; h<=this.outerRadius; h=h+1 ) {
@@ -134,12 +134,13 @@ class SimpleHexSweeper {
         this.frees = Snap.set( ...this.hexes.items.filter( x => ! x.data( "is mine" ) ) );  
         this.hexes.forEach(
             hex => hex.mouseup( this.toggleMine )
-                      .touchend( this.toggleMine )
+//                      .touchend( this.toggleMine )
         )
             
     }
 
-    toggleMine( element ) {
+    toggleMine( ev ) {
+        console.log( ev );
         var game = this.data( 'game' );
         if( game.mines.length == 0 ) {
             game.remine( this );
@@ -159,7 +160,7 @@ class SimpleHexSweeper {
                 );
                 if( mine_neighbours.length == 0 ) {
                     this.select( 'text' ).node.textContent = "";
-                    neighbours.map( hx => game.toggleMine.call( hx ) );
+                    neighbours.map( hx => game.toggleMine.call( hx, ev ) );
                 } else {
                     this.select( 'text' ).node.textContent = mine_neighbours.length;
                 }
@@ -188,12 +189,12 @@ class SimpleHexSweeper {
                 }
             }
         }
-        this.hexes.forEach( hx => activate.apply( hx ) );
+        this.hexes.forEach( hx => activate.call( hx ) );
         this.hexes.forEach(
             hex => hex.unmouseup( this.toggleMine )
-                      .untouchend( this.toggleMine )
+//                      .untouchend( this.toggleMine )
                       .mouseup( this.initialise )
-                      .touchend( this.initialise )
+//                      .touchend( this.initialise )
         );
     }
 }
