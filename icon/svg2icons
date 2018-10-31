@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+
+inkscape -z -e ldpi.png -d 120 icon.svg
+inkscape -z -e hdpi.png -d 160 icon.svg
+inkscape -z -e ldpi.png -d 240 icon.svg
+inkscape -z -e xhdpi.png -d 320 icon.svg

@@ -1,3 +1,11 @@
+function distance( pointers ) {
+    var Ax = pointers[ 0 ].offsetX;
+    var Ay = pointers[ 0 ].offsetY;
+    var Bx = pointers[ 1 ].offsetX;
+    var By = pointers[ 1 ].offsetY;
+    return Math.pow( Ax - Bx, 2 ) + Math.pow( Ay - By, 2 );
+}
+
 class SimpleHexSweeper {
     constructor( snap, outerRadius, mineRatio ) {
         this.snap = snap;
@@ -18,10 +26,59 @@ class SimpleHexSweeper {
         this.hexes.forEach( x => x.data( 'game', this ) );
         this.hexes.forEach(
             hex => hex.mouseup( this.initialise )
-//                      .touchend( this.initialise )
         );
         this.first = true;
-        this.first = true;
+
+        this.zoomLevel = 1;
+        this.center = [ 50, 50 ];
+        this.panStart = undefined;
+        this.zoomStart = undefined;
+    
+        $( this.snap.node ).data( 'game', this );
+        $( this.snap.node ).hammer();
+        $( this.snap.node ).data( 'hammer' ).get( 'pinch' ).set({ enable: true } );
+        $( this.snap.node ).bind( 'pinchstart', function( ev ) {
+            var game = $( this ).data( 'game' );
+            game.zoomStart = distance( ev.gesture.pointers );
+        }).bind( 'pinchmove', function( ev ) {
+            var game = $( this ).data( 'game' );
+            var zoom = distance( ev.gesture.pointers ) / game.zoomStart;
+            game.panZoom( game.center, zoom );
+        }).bind( 'pinchcancel', function( ev ) {
+            var game = $( this ).data( 'game' );
+            game.panZoom([50,50],1);
+        });
+
+        $( this.snap.node ).bind( 'panstart', function( ev ) {
+            var game = $( this ).data( 'game' );
+            var m = game.snap.select( '#hexes' ).node.getScreenCTM();
+            var p = game.snap.node.createSVGPoint();
+            p.x = ev.gesture.center.x;
+            p.y = ev.gesture.center.y;
+            game.panStart = p.matrixTransform(m.inverse());
+            game.panStart = [ game.center[ 0 ], game.center[ 1 ] ];
+        }).bind( 'panmove', function( ev ) {
+            var game = $( this ).data( 'game' );
+            var pan = [ 
+                game.panStart[ 0 ] - 100 * ev.gesture.deltaX / window.innerWidth,
+                game.panStart[ 1 ] - 100 * ev.gesture.deltaY / window.innerHeight,
+            ]
+            game.panZoom( pan, game.zoomLevel );
+        }).bind( 'pancancel', function( ev ) {
+            var game = $( this ).data( 'game' );
+            game.panZoom([50,50],game.zoomLevel);
+        });
+    }
+
+    panZoom( pos, zoom ) {
+        pos = pos.map( x => Math.min( Math.max( x, 0 ), 100 ) );
+
+        var x = 50 - zoom * pos[ 0 ];
+        var y = 50 - zoom * pos[ 1 ];
+        var z = zoom;
+        this.center = pos;
+        this.zoomLevel = zoom;
+        this.snap.select( '#hexes' ).attr( 'transform', `matrix(${z},0,0,${z},${x},${y})` );
     }
 
     initialise( ev ) {
@@ -34,7 +91,6 @@ class SimpleHexSweeper {
         game.hexes.forEach( hex => hex.attr( "class", "hex" ) );
         game.hexes.forEach( hex => hex.select( "text" ).node.textContent = "?" );
 
-
         game.hexes.forEach(
             hex => hex.mouseup( this.toggleMine )
 //                     .touchend( this.toggleMine )
@@ -45,8 +101,8 @@ class SimpleHexSweeper {
         if( game.first ) {
             game.remine( this );
             game.first = false;
+            game.toggleMine.call( this, ev );
         }
-        game.toggleMine.call( this, ev );
     }
 
     rebuild() {
@@ -93,6 +149,7 @@ class SimpleHexSweeper {
 
                 var hex = template_hex.clone();
                 hex.data( 'position', [ h, j ] );
+                hex.data( 'cartesian', [ x, y ] );
 
                 var m = hex.transform().localMatrix;
                 m.translate( x, y );
@@ -134,13 +191,11 @@ class SimpleHexSweeper {
         this.frees = Snap.set( ...this.hexes.items.filter( x => ! x.data( "is mine" ) ) );  
         this.hexes.forEach(
             hex => hex.mouseup( this.toggleMine )
-//                      .touchend( this.toggleMine )
         )
             
     }
 
     toggleMine( ev ) {
-        console.log( ev );
         var game = this.data( 'game' );
         if( game.mines.length == 0 ) {
             game.remine( this );
@@ -169,7 +224,6 @@ class SimpleHexSweeper {
     }
 
     endGame() {
-        console.log( "endGame" );
         function activate() {
             if( this.attr( "class" ) == "hex" ) {
                 if( this.data( "is mine" ) ) {
@@ -192,9 +246,7 @@ class SimpleHexSweeper {
         this.hexes.forEach( hx => activate.call( hx ) );
         this.hexes.forEach(
             hex => hex.unmouseup( this.toggleMine )
-//                      .untouchend( this.toggleMine )
                       .mouseup( this.initialise )
-//                      .touchend( this.initialise )
         );
     }
 }
