@@ -125,6 +125,7 @@ EM_BOOL cellActivate( int eventType, const EmscriptenMouseEvent *mouseEvent, voi
 void read_json( const char* filename ) {
     char *json_string;
     FILE *f = fopen( filename, "rb" );
+    struct json_object *json, *tmp;
     long length;
     
     if( f ) {
@@ -139,11 +140,17 @@ void read_json( const char* filename ) {
     } else {
         printf( "%s is not a file\n", filename );
     }
+
     if( json_string ) {
-        printf( "%s\n", json_string );
+        json = json_tokener_parse( json_string );
+        tmp = json_object_object_get( json, "background" );
+        if( tmp ) {
+            printf( "%s\n", json_object_get_string( tmp ) );
+        }
     } else {
         printf( "tried to read %s, but it failed?\n", filename );
     }
+    free( json_string );
 }
 
 int main() {
