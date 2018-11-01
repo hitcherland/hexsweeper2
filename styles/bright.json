@@ -1,0 +1,37 @@
+{
+    "background": "#fff",
+    "default": {
+        "normal": { "stroke": "#000", "fill": "rgba(0,0,0,0)", "strokeWidth": 0.5 },
+        "hover": { "stroke": "#000", "fill": "rgba(0,0,0,0)", "strokeWidth": 0.5 },
+        "activate": { "stroke": "#000", "fill": "rgba(0,0,0,0)", "strokeWidth": 0.5 }
+    },
+    "text": {
+        "normal": { "stroke": "#000", "fill": "rgba(0,0,0,0)", "strokeWidth": 0.5 },
+        "hover": { "stroke": "#000", "fill": "rgba(0,0,0,0)", "strokeWidth": 0.5 },
+        "activate": { "stroke": "#000", "fill": "rgba(0,0,0,0)", "strokeWidth": 0.5 }
+    },
+    "hidden-text": {
+        "normal": { "stroke": "rgba(0,0,0,0)", "fill": "rgba(0,0,0,0)", "strokeWidth": 0.0 },
+        "hover": { "stroke": "rgba(0,0,0,0)", "fill": "rgba(0,0,0,0)", "strokeWidth": 0.0 },
+        "activate": { "stroke": "rgba(0,0,0,0)", "fill": "rgba(0,0,0,0)", "strokeWidth": 0.0 }
+    },
+    "blank": {
+        "hover": { "fill": "#505050", "strokeWidth": 1.0 }
+    },
+    "icon": {
+        "normal": { "fill": "#000" },
+        "hover": { "fill": "#505050", "strokeWidth": 1.0 }
+    },
+    "flag": {
+        "normal": { "fill": "#b95c00" },
+        "hover": { "fill": "#ff0", "strokeWidth": 1.0 }
+    },
+    "free": {
+        "normal": { "fill": "#008700" },
+        "hover": { "fill": "#5f5", "strokeWidth": 1.0 }
+    },
+    "mine": {
+        "normal": { "fill": "#ec0000" },
+        "hover": { "fill": "#f55", "strokeWidth": 1.0 }
+    }
+}

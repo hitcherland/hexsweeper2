@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <emscripten.h>
 #include <emscripten/html5.h>
+#include <json.h>
+#include <stddef.h>
 
 EM_JS(void, update_style, (
     float transition_speed,
@@ -120,9 +122,34 @@ EM_BOOL cellActivate( int eventType, const EmscriptenMouseEvent *mouseEvent, voi
     return EM_TRUE;
 }
 
+void read_json( const char* filename ) {
+    char *json_string;
+    FILE *f = fopen( filename, "rb" );
+    long length;
+    
+    if( f ) {
+        fseek( f, 0, SEEK_END );
+        length = ftell( f );
+        fseek( f, 0, SEEK_SET);
+        json_string = (char *) malloc( length );
+        if( json_string ) {
+            fread( json_string, 1, length, f );
+        }
+        fclose( f );
+    } else {
+        printf( "%s is not a file\n", filename );
+    }
+    if( json_string ) {
+        printf( "%s\n", json_string );
+    } else {
+        printf( "tried to read %s, but it failed?\n", filename );
+    }
+}
+
 int main() {
     try {
     make_svg();
+    read_json( "/styles/dark.json" );
     update_style( 
         1.0,  // transition speed
         "#fff", // stroke style
