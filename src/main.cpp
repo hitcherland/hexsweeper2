@@ -3,7 +3,14 @@
 #include <emscripten.h>
 #include <emscripten/html5.h>
 #include <json.h>
-#include <stddef.h>
+#include <time.h>
+#include <math.h>
+
+struct activate_data {
+    int id;
+    int is_mine;
+    int* mines;   
+};
 
 EM_JS(void, update_style, (
     float transition_speed,
@@ -24,13 +31,13 @@ EM_JS(void, update_style, (
     * {
         transition: all ${transition_speed}s;
         font-family: mono;
-    }
-
-    . { 
         -webkit-user-select: none;  /* Chrome all / Safari all */
         -moz-user-select: none;     /* Firefox all */
         -ms-user-select: none;      /* IE 10+ */
         user-select: none;          /* Likely future */ 
+        -webkit-touch-callout: none;
+        -khtml-user-select: none;
+        -webkit-tap-highlight-color: transparent;
     }
 
     
@@ -84,9 +91,9 @@ EM_JS(void, make_svg, (), {
   style.setAttribute( "id", "style" );
 });
 
-EM_JS(void, make_hex, (float* points, float r, char* id_, float x, float y), {
+EM_JS(void, make_hex, (float* points, float r, int id, float x, float y), {
   var group = document.createElementNS( "http://www.w3.org/2000/svg", "g" );
-  group.id = UTF8ToString( id_ );
+  group.id = "h" + id;
   group.setAttribute( "transform", "matrix(1,0,0,1," + x + "," + y + ")" );
   group.setAttribute( "class", "hex" );
   document.getElementById( "s" ).appendChild( group );
@@ -109,16 +116,31 @@ EM_JS(void, make_hex, (float* points, float r, char* id_, float x, float y), {
 });
 
 
-EM_JS(void, update_class, ( char* id_, const char* new_class_ ), {
-    id = UTF8ToString( id_ );
+EM_JS(void, update_class, ( int id, const char* new_class_ ), {
+    id = "h" + id;
     new_class = UTF8ToString( new_class_ );
     document.getElementById( id ).setAttribute( "class", new_class );
 });
 
 EM_BOOL cellActivate( int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData ) {
-    char *id = (char *) userData;
-    printf( "click %s\n", id );
-    update_class( id, "hex free" );
+    activate_data *data = (activate_data *) userData;
+    if( data->is_mine == -1 ) {
+        int i=0;
+        while( data->mines[ i ] != NULL ) {
+            if( data->mines[ i ] == data->id ) {
+                data->is_mine = 1;
+                break;
+            }
+            i++;
+        }
+        if( data->is_mine != 1 ) 
+            data->is_mine = 0;
+    }
+
+    if( data->is_mine == 0 )
+        update_class( data->id, "hex free" );
+    else
+        update_class( data->id, "hex mine" );
     return EM_TRUE;
 }
 
@@ -153,10 +175,42 @@ void read_json( const char* filename ) {
     free( json_string );
 }
 
+int flatten( int radius, int i, int j ) {
+    int count = 0;
+    for( int a=-radius; a<=radius; a++ ) {
+        for( int b=-radius; b<=radius; b++ ) {
+            if(a==i && b==j)
+                return count;
+            count++;
+        }
+    }
+    return -1;
+}
+
+int* choose_in_range( int range, int count ) {
+    int c=0;
+    int *output = (int*) malloc( ( count + 1 ) * sizeof(int) );
+    while( c < count && c < range ) {
+        int r = rand() % range;
+        int pass = 0;
+        for( int i=0; i<c; i++) {
+            if( output[ i ] == r ) {
+                pass = 1;
+                break;
+            }
+        }
+        if( pass == 0 ) {
+            output[c++] = r;
+        }
+    }
+    output[ c ] = NULL;
+    return output;
+}
+
 int main() {
-    try {
+    srand(time(NULL));
     make_svg();
-    read_json( "/styles/dark.json" );
+    //read_json( "/styles/dark.json" );
     update_style( 
         1.0,  // transition speed
         "#fff", // stroke style
@@ -169,6 +223,7 @@ int main() {
     );
 
     int radius = 3;
+    float mineRatio = 0.1;
     float innerRadius = 57.1593533487 / ( 2 * radius + 1 );
 
     float cartesianConverters[] = {
@@ -188,26 +243,43 @@ int main() {
     };
 
     float x, y;
+    int count = 0;
     for( int i = -radius; i<= radius; i++ ) {
         for( int j = -radius; j <= radius; j++) {
             if( abs( i + j ) > radius )
                 continue;
             x = 50 + i * cartesianConverters[ 0 ] + j * cartesianConverters[ 1 ];
             y = 50 + j * cartesianConverters[ 2 ];
-            char* id = (char *) malloc( 12 * sizeof(char) );
-            sprintf( id, "h%d_%d", i, j );
-            make_hex( points, innerRadius, id, x, y );
-            emscripten_set_mouseup_callback(
-                id,
-                ( void* ) id,
-                EM_TRUE,
-                cellActivate
-            );
-
+            make_hex( points, innerRadius, count, x, y );
+            count++;
         }
     }
-    return 0;
-    } catch( ... ) {
-        printf( "seems like a problem came up?\n" );
+    int mine_count = round( count * mineRatio );
+    int *mines = choose_in_range( count, mine_count );
+
+    activate_data* datas[ count ]; 
+    for( int i=0; i<count; i++) {
+        activate_data* data = (activate_data *) malloc( sizeof(activate_data) );
+        datas[ i ] = data;
+        data->id = i;
+        data->mines=mines;
+        data->is_mine = 0;
+
+        char *id = (char *) malloc( 8*sizeof(char) );
+        sprintf( id, "h%d", i );
+
+        emscripten_set_mouseup_callback(
+            id,
+            ( void* ) data,
+            EM_TRUE,
+            cellActivate
+        );
+        free( id );
     }
+
+    for( int i = 0; i<mine_count; i++) {
+        datas[ mines[ i ] ]->is_mine = 1;
+    }
+   
+    return 0;
 }
