@@ -10,6 +10,9 @@ struct activate_data {
     int id;
     int is_mine;
     int* mines;   
+    int* neighbours;
+    int mine_count;
+    int lock;
 };
 
 EM_JS(void, update_style, (
@@ -40,7 +43,9 @@ EM_JS(void, update_style, (
         -webkit-tap-highlight-color: transparent;
     }
 
-    
+    .hex.focus > polygon {
+        stroke: #00f;
+    }    
 
     .hex { cursor: pointer; }
     .hex > polygon {
@@ -107,6 +112,7 @@ EM_JS(void, make_hex, (float* points, float r, int id, float x, float y), {
   group.appendChild( polygon);
 
   var text = document.createElementNS( "http://www.w3.org/2000/svg", "text" );
+  text.id = "t" + id;
   text.textContent = "?";
   text.setAttribute( "font-size", r );
   text.setAttribute( "x", -r / 3 );
@@ -118,12 +124,46 @@ EM_JS(void, make_hex, (float* points, float r, int id, float x, float y), {
 
 EM_JS(void, update_class, ( int id, const char* new_class_ ), {
     id = "h" + id;
-    new_class = UTF8ToString( new_class_ );
-    document.getElementById( id ).setAttribute( "class", new_class );
+    var svg = document.getElementById( 's' ); 
+    var cell = document.getElementById( id );
+    if( new_class_ != 0 ) {
+        new_class = UTF8ToString( new_class_ );
+        cell.setAttribute( "class", new_class );
+    }
+    svg.appendChild( cell );
 });
+
+EM_JS(void, set_mine_count, ( int id, int mine_count ), {
+    id = "t" + id;
+    var text = document.getElementById( id );
+    text.textContent = mine_count;
+});
+
+EM_BOOL cellFocus( int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData ) {
+    activate_data *data = (activate_data *) userData;
+    for(int i=0; i<6; i++) {
+        if( data-> neighbours[ i ] >= 0 )
+            update_class( data->neighbours[ i ], "hex focus" );
+    }
+    printf( "\n" );
+    printf( "\n" );
+    return EM_TRUE;
+}
+
+EM_BOOL cellUnfocus( int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData ) {
+    activate_data *data = (activate_data *) userData;
+    for(int i=0; i<6; i++) {
+        if( data->neighbours[ i ] >= 0 )
+            update_class( data->neighbours[ i ], "hex" );
+    }
+    update_class( data->id, NULL );
+    return EM_TRUE;
+}
+
 
 EM_BOOL cellActivate( int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData ) {
     activate_data *data = (activate_data *) userData;
+    data->lock = 1;
     if( data->is_mine == -1 ) {
         int i=0;
         while( data->mines[ i ] != NULL ) {
@@ -137,12 +177,15 @@ EM_BOOL cellActivate( int eventType, const EmscriptenMouseEvent *mouseEvent, voi
             data->is_mine = 0;
     }
 
-    if( data->is_mine == 0 )
+    if( data->is_mine == 0 ) {
         update_class( data->id, "hex free" );
-    else
+        set_mine_count( data->id, data->mine_count );
+    } else
         update_class( data->id, "hex mine" );
+
     return EM_TRUE;
 }
+
 
 void read_json( const char* filename ) {
     char *json_string;
@@ -173,18 +216,6 @@ void read_json( const char* filename ) {
         printf( "tried to read %s, but it failed?\n", filename );
     }
     free( json_string );
-}
-
-int flatten( int radius, int i, int j ) {
-    int count = 0;
-    for( int a=-radius; a<=radius; a++ ) {
-        for( int b=-radius; b<=radius; b++ ) {
-            if(a==i && b==j)
-                return count;
-            count++;
-        }
-    }
-    return -1;
 }
 
 int* choose_in_range( int range, int count ) {
@@ -244,6 +275,7 @@ int main() {
 
     float x, y;
     int count = 0;
+    int rows[ 2 * radius + 1 ];
     for( int i = -radius; i<= radius; i++ ) {
         for( int j = -radius; j <= radius; j++) {
             if( abs( i + j ) > radius )
@@ -253,33 +285,63 @@ int main() {
             make_hex( points, innerRadius, count, x, y );
             count++;
         }
+        rows[ i + radius ] = count;
     }
     int mine_count = round( count * mineRatio );
     int *mines = choose_in_range( count, mine_count );
 
     activate_data* datas[ count ]; 
+    int row = 0;
+    int prev_row_length = -1;
+    int row_length = rows[ 0 ];
+    int next_row_length = rows[ 1 ] - rows[ 0 ];
     for( int i=0; i<count; i++) {
+        if( i == rows[ row ] ) {
+            row++;
+            prev_row_length = row_length;
+            row_length = rows[ row ] - rows[ row - 1 ];
+            next_row_length = row < 2 * radius + 1 ? rows[ row + 1 ] - rows[ row ] : -1;
+        }
+
         activate_data* data = (activate_data *) malloc( sizeof(activate_data) );
         datas[ i ] = data;
         data->id = i;
         data->mines=mines;
         data->is_mine = 0;
+        data->neighbours = (int *) malloc( 6 * sizeof(int) );
+        
+        int top = rows[ row ] - row_length == i && row >= radius;
+        int top_right = row == 2 * radius;
+        int bottom_right = rows[ row ] == i + 1 && row >= radius;
+        int bottom = rows[ row ] == i + 1 && row <= radius;
+        int bottom_left = row == 0;
+        int top_left = rows[ row ] - row_length == i && row <= radius;
+
+        data->neighbours[ 0 ] = !( top || top_right ) ? i + fmax( row_length, next_row_length ) - 1 : -1;
+        data->neighbours[ 1 ] = !( top_right || bottom_right ) ? i + fmax( row_length, next_row_length ) : -1;
+        data->neighbours[ 2 ] = !( bottom_right || bottom ) ? i + 1 : -1;
+        data->neighbours[ 3 ] = !( bottom || bottom_left ) ? i - fmax( row_length, prev_row_length ) + 1: -1;
+        data->neighbours[ 4 ] = !( bottom_left || top_left ) ? i - fmax( row_length, prev_row_length ): -1;;
+        data->neighbours[ 5 ] = !( top || top_left ) ? i - 1: -1;;
+    
+        data->mine_count = 0;
+        data->lock = 0;
 
         char *id = (char *) malloc( 8*sizeof(char) );
         sprintf( id, "h%d", i );
 
-        emscripten_set_mouseup_callback(
-            id,
-            ( void* ) data,
-            EM_TRUE,
-            cellActivate
-        );
+        emscripten_set_mouseup_callback( id, ( void* ) data, EM_TRUE, cellActivate ); 
+        //emscripten_set_mouseenter_callback( id, ( void* ) data, EM_TRUE, cellFocus );
+        //emscripten_set_mouseleave_callback( id, ( void* ) data, EM_TRUE, cellUnfocus );
         free( id );
     }
 
-    for( int i = 0; i<mine_count; i++) {
+    for( int i=0; i<mine_count; i++) {
         datas[ mines[ i ] ]->is_mine = 1;
+        for( int j=0; j<6; j++) {
+            datas[ datas[ mines[ i ] ]->neighbours[ j ] ]->mine_count+=1;
+        }
     }
-   
+
     return 0;
 }
