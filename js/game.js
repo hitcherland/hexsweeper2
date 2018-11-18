@@ -15,8 +15,15 @@ class Game {
         var reload = this.reload = document.createElementNS( "http://www.w3.org/2000/svg", "g" );
         reload.setAttribute( "id", "reload" );
         reload.setAttribute( "transform", "matrix(0.5,0,0,0.5,88,4)" );
+        var back = document.createElementNS( "http://www.w3.org/2000/svg", "rect" );
+        back.setAttribute( "class", "back" );
+        back.setAttribute( "width", 16 );
+        back.setAttribute( "height", 16 );
+        reload.appendChild( back );        
+
         var contents = document.createElementNS( "http://www.w3.org/2000/svg", "path" );
         contents.setAttribute( "d", "M 12.007 8.01 L 12.007 8.488 L 12 8.488 C 12 10.974 9.985 12.988 7.5 12.988 C 5.015 12.988 3 10.974 3 8.488 C 3 6.17 4.759 4.284 7.012 4.037 L 7.012 6.549 L 11.519 3.775 L 7.012 1 L 7.012 3.013 C 4.203 3.26 2 5.615 2 8.488 C 2 11.526 4.462 13.988 7.5 13.988 C 10.509 13.988 12.95 11.571 12.996 8.572 L 13 8.572 L 13 8.01 L 12.007 8.01 Z" );
+        
         reload.appendChild( contents );
         svg.appendChild( reload );
         var this_ = this;
@@ -184,6 +191,10 @@ class Game {
             cursor: pointer;
             fill: white;
             display: none;
+        }
+
+        #reload .back {
+            opacity: 0;
         }
 
         #reload.win {
