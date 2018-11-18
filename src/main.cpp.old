@@ -6,24 +6,7 @@
 #include <time.h>
 #include <math.h>
 
-class Cell {
-	public:
-		int id;
-		int is_mine;
-		Cell** neighbours;
-		int mine_count;
-		int activated;
-};
-
-struct ActivateData {
-    int id;
-    int is_mine;
-    int* mines;   
-    int* neighbours;
-    int mine_count;
-    int lock;
-	ActivateData** datas;
-};
+#include "cell.h"
 
 EM_JS(void, update_style, (
     float transition_speed,
@@ -164,23 +147,20 @@ EM_JS(void, set_mine_count, ( int id, int mine_count ), {
 
 
 EM_BOOL cellFocus( int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData ) {
-    ActivateData *data = (ActivateData *) userData;
+    Cell* cell = (Cell*) userData;
     for(int i=0; i<6; i++) {
-        if( data-> neighbours[ i ] >= 0 )
-            update_class( data->neighbours[ i ], "hex focus" );
+        if( cell->neighbours[ i ] != NULL )
+            update_class( cell->neighbours[ i ]->id, "hex neighbour" );
     }
-    printf( "\n" );
-    printf( "\n" );
     return EM_TRUE;
 }
 
 EM_BOOL cellUnfocus( int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData ) {
-    ActivateData *data = (ActivateData *) userData;
+    Cell* cell = (Cell*) userData;
     for(int i=0; i<6; i++) {
-        if( data->neighbours[ i ] >= 0 )
-            update_class( data->neighbours[ i ], "hex" );
+        if( cell->neighbours[ i ] != NULL )
+            update_class( cell->neighbours[ i ]->id, "hex" );
     }
-    update_class( data->id, NULL );
     return EM_TRUE;
 }
 
@@ -320,7 +300,6 @@ int main() {
     int mine_count = round( count * mineRatio );
     int *mines = choose_in_range( count, mine_count );
 
-    ActivateData* datas[ count ]; 
 	Cell* cells[ count ];
 
     int row = 0;
