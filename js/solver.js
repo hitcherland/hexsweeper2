@@ -20,12 +20,12 @@ function simpleSolve( game ) {
 function simpleChecker( game ) {
     var activatedMines = game.cells.filter( x => x.activated > 0 && x.isMine == 1 )
     if( activatedMines.length > 0 ) {
-        return "LOSE";
+        return "lose";
     }
     var mineCount = game.mines.length;
     var remaining = game.cells.filter( x => x.activated == 0 && x.isMine == 0 )
     if( remaining.length == 0 ) {
-        return "WIN";
+        return "win";
     }
     return undefined;
 }

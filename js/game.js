@@ -3,6 +3,7 @@ class Game {
         var svg = this.svg = document.createElementNS( "http://www.w3.org/2000/svg", "svg" );
         document.body.appendChild( svg );
         svg.setAttribute( "xmlns", "http://www.w3.org/2000/svg" );
+        svg.setAttribute( "xmlns:xlink", "http://www.w3.org/1999/xlink" );
         svg.setAttribute( "viewBox", "0 0 100 100" );
         svg.setAttribute( "id", "s" );
         svg.setAttribute( "version", "1.1" );
@@ -11,10 +12,35 @@ class Game {
         svg.appendChild( style );
         style.setAttribute( "id", "style" );
 
+        var reload = this.reload = document.createElementNS( "http://www.w3.org/2000/svg", "g" );
+        reload.setAttribute( "id", "reload" );
+        reload.setAttribute( "transform", "matrix(0.5,0,0,0.5,88,4)" );
+        var contents = document.createElementNS( "http://www.w3.org/2000/svg", "path" );
+        contents.setAttribute( "d", "M 12.007 8.01 L 12.007 8.488 L 12 8.488 C 12 10.974 9.985 12.988 7.5 12.988 C 5.015 12.988 3 10.974 3 8.488 C 3 6.17 4.759 4.284 7.012 4.037 L 7.012 6.549 L 11.519 3.775 L 7.012 1 L 7.012 3.013 C 4.203 3.26 2 5.615 2 8.488 C 2 11.526 4.462 13.988 7.5 13.988 C 10.509 13.988 12.95 11.571 12.996 8.572 L 13 8.572 L 13 8.01 L 12.007 8.01 Z" );
+        reload.appendChild( contents );
+        svg.appendChild( reload );
+        var this_ = this;
+        reload.onmouseup = function() {
+            this_.init();
+        }
+
         this.count = 1 + 3 * radius * ( radius + 1 );
         this.mineCount = Math.round( this.count * mineRatio );
         this.cells = [];
         var cellRadius = 57.1593533487 / ( 2 * radius + 1 );
+
+        this.setStyle( 
+            1.0,  // transition speed
+            "#fff", // stroke style
+            0.1 * cellRadius, // unknown cell stroke width
+            "rgba(0,0,0,0)", // unknown cell fill
+            0.2 * cellRadius, // hover stroke width
+            "#008900", // free fill
+            "#ec0000", // mine fill
+            "#b95c00" // flag fill
+        );
+
+
 
         //seed = time( NULL );
 
@@ -77,25 +103,22 @@ class Game {
             this.cells[ i ].neighbours = this.cells[ i ].neighbours.filter( x => x !== undefined );
         }
 
-        this.setStyle( 
-            1.0,  // transition speed
-            "#fff", // stroke style
-            0.1 * cellRadius, // unknown cell stroke width
-            "rgba(0,0,0,0)", // unknown cell fill
-            0.2 * cellRadius, // hover stroke width
-            "#008900", // free fill
-            "#ec0000", // mine fill
-            "#b95c00" // flag fill
-        );
     }
 
     init() {
+        this.svg.setAttribute( "style", "opacity: 0" );
+        this.reload.setAttribute( "class", "");
         this.mines = chance.pickset( this.cells, this.mineCount );
+        this.cells.map( x => x.activated = 0 );
         this.cells.map( x => x.setClass( "hex" ) );
         this.cells.map( x => x.mineCount = 0 );
         this.cells.map( x => x.isMine = 0 );
         this.mines.map( x => x.isMine = 1 );
         this.mines.map( x => x.neighbours.map( y => y.mineCount += 1 ) );
+        var this_ = this;
+        window.setTimeout( function() {
+            this_.svg.setAttribute( "style", "" );
+        }, 1000 );
     }
 
     setStyle( transition_speed, stroke, unknown_stroke_width, 
@@ -156,6 +179,23 @@ class Game {
         .hex.free > polygon { fill: #008900; }
         .hex.mine > polygon { fill: #ec0000; }
         .hex.flag > polygon { fill: #b95c00; }
+
+        #reload {
+            cursor: pointer;
+            fill: white;
+            display: none;
+        }
+
+        #reload.win {
+            fill: ${free_fill};
+            display: initial;
+        }
+
+        #reload.lose {
+            fill: ${mine_fill};
+            display: initial;
+        }
+
     `;
     }
 

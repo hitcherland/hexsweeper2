@@ -47,7 +47,7 @@ class Cell {
                 simpleSolve( this_.game );
                 var result = simpleChecker( this_.game );
                 if( result !== undefined ) {
-                    alert( result );
+                    this_.game.reload.setAttribute( "class", result );
                 }
             }
         }
