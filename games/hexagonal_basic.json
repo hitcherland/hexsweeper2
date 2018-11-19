@@ -1,8 +1,8 @@
 {
     "name": "hexagonal basic",
-    "body": "<svg xmlns:'http://www.w3.org/2000/svg' viewbox='-5 -5 10 10'><style> .hex { stroke: white; stroke-width:0.1; }</style></svg>",
+    "body": "<svg xmlns:'http://www.w3.org/2000/svg' viewbox='-${this.radius} -${this.radius} ${2*this.radius} ${2*this.radius}'><style> .cell { stroke: white; stroke-width:0.1; }</style></svg>",
     "variables": {
-        "radius": 3
+        "radius": 4
     },
     "units": {
         "H": [ 0.433, 0.75 ],
@@ -10,7 +10,7 @@
     },
     "cells": {
         "hexagon": {
-            "html": "<g class='hex' transform='matrix(1,0,0,1,${0},${1})'><polygon points='0,0.5,0.433,0.25,0.433,-0.25,0,-0.5,-0.433,-0.25,-0.433,0.25,0,0.5'></polygon><text></text></g>",
+            "html": "<g class='cell' transform='matrix(1,0,0,1,${this.x},${this.y})'><polygon points='0,0.5,0.433,0.25,0.433,-0.25,0,-0.5,-0.433,-0.25,-0.433,0.25,0,0.5'></polygon><text></text></g>",
             "neighbours": [
                 { "type": "hexagon", "position": { "H": 1 } },
                 { "type": "hexagon", "position": { "H": -1 } },
@@ -28,7 +28,7 @@
                 "position": { "H": 0, "I": 0 }
             }
         ],
-        "rule": "Math.abs( ${1} + ${2} ) <= ${0}",
+        "rule": "Math.abs( ${this.H} + ${this.I} ) <= ${this.radius} && Math.abs( ${this.H} ) <= ${this.radius} && Math.abs( ${this.I}) <= ${this.radius}",
         "values": "radius"
     }
 }

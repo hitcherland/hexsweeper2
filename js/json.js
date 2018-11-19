@@ -1,3 +1,19 @@
+var TemplateEngine = function(html, options) {
+    var re = /\${([^}]+)?}/g, reExp = /(^( )?(if|for|else|switch|case|break|{|}))(.*)?/g, code = 'var r=[];\n', cursor = 0, match;
+    var add = function(line, js) {
+        js? (code += line.match(reExp) ? line + '\n' : 'r.push(' + line + ');\n') :
+            (code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");\n' : '');
+        return add;
+    }
+    while(match = re.exec(html)) {
+        add(html.slice(cursor, match.index))(match[1], true);
+        cursor = match.index + match[0].length;
+    }
+    add(html.substr(cursor, html.length - cursor));
+    code += 'return r.join("");';
+    return new Function(code.replace(/[\r\t\n]/g, '')).apply(options);
+}
+
 function getGameData( path, callback ) {
     var oReq = new XMLHttpRequest();
     var data;
@@ -23,7 +39,8 @@ function makeGame( json ) {
       });
     }
 
-    var bodyHTML = json.body;
+    var bodyHTML = TemplateEngine( json.body, json.variables );
+    
     document.body.innerHTML = bodyHTML;
     var svg = document.body.lastElementChild;
     
@@ -32,7 +49,7 @@ function makeGame( json ) {
     for( var i=0; i<cellNames.length; i++) {
         var cellName = cellNames[ i ];
         var cell = json.cells[ cellName ];
-        cellTemplates[ cellName ] = eval( 'template`' + cell.html + '`' )
+        cellTemplates[ cellName ] = cell.html
     }
 
     var cells = [];
@@ -52,13 +69,13 @@ function makeGame( json ) {
         for( var i=0; i<unitNames.length; i++) {
             var unitName = unitNames[ i ];
             var unit = units[ unitName ];
-            attributes[ "data:unit." + unitName.toLowerCase() + ":" ] = unit;
+            attributes[ "data:unit." + unitName.toLowerCase() ] = unit;
             var offset = json.units[ unitName ].map( x => x * unit );
             position[ 0 ] += offset[ 0 ];
             position[ 1 ] += offset[ 1 ];
         }
 
-        var html = cellTemplates[ cellType ]( ...position );
+        var html = TemplateEngine( cellTemplates[ cellType ], { x: position[ 0 ], y: position[ 1 ] } );
         svg.innerHTML += html;
         var cell = svg.lastElementChild;
 
@@ -83,11 +100,10 @@ function makeGame( json ) {
     var addedSomething = true;
     var count = 0;
 
-    var rule = eval( "template`" + json.layout.rule + "`" ); //( json.variables, 
+    var rule = json.layout.rule; //( json.variables, 
 
     while( addedSomething ) {
         addedSomething = false;
-        console.log( "unhandled", unhandled );
         var new_unhandled = [];
         for( var i=0; i<unhandled.length; i++ ) {
             var cell = unhandled[ i ];
@@ -97,12 +113,10 @@ function makeGame( json ) {
             var unitNames = Object.keys( json.units );
             for( var j=0; j<unitNames.length; j++) {
                 var unitName = unitNames[ j ];
-                console.log( unitName, cell.getAttribute( "data:unit." + unitName.toLowerCase() ) );
                 units[ unitName ] = parseInt( cell.getAttribute( "data:unit." + unitName.toLowerCase() ) || 0 );
             }
 
             var neighbours = json.cells[ cellType ].neighbours;
-            console.log( units, neighbours );
             for( var j=0; j<neighbours.length; j++) {
                 var neighbourType = neighbours[ j ].type;
                 var neighbourPosition = neighbours[ j ].position;
@@ -112,23 +126,21 @@ function makeGame( json ) {
                     var unitName = unitNames[ k ];
                     neighbourUnits[ unitName ] = units[ unitName ] + ( neighbourPosition[ unitName ] || 0 );
                 }
-                var allowed = eval( rule( json.variables.radius, neighbourUnits.H, neighbourUnits.I ) );
+                var rule_eval = TemplateEngine( rule, { ...json.variables, ...neighbourUnits } );
+                var allowed = eval( rule_eval );
                 if( allowed ) {
-                    console.log( "inside" );
                     var neighbour = addCell( neighbourType, neighbourUnits );
                     if( neighbour !== undefined ) {                 
                         new_unhandled.push( neighbour );
                         addedSomething = true;
-                        count+=1;
                     }
-                } else {
-                    console.log( "hello" );
                 }
             }
         }
         unhandled = new_unhandled;
     }
-    console.log( count );
 }
 
-var basic_game = getGameData( "games/hexagonal_basic.json", makeGame );
+//var basic_game = getGameData( "games/hexagonal_basic.json", makeGame );
+//var basic_game = getGameData( "games/square_basic.json", makeGame );
+var basic_game = getGameData( "games/triangle_basic.json", makeGame );
