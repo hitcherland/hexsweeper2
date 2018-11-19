@@ -72,9 +72,13 @@ class Cell {
         cell.setAttribute( "class", old_class.replace( className, "" ) );
         svg.appendChild( cell );
     }
+    
+    setTextContent( content ) {
+        this.text.textContent = content;
+    }
 
     showMineCount() {
-        this.text.textContent = this.mineCount == 0 ? "" : this.mineCount; 
+        this.setTextContent( this.mineCount == 0 ? "" : this.mineCount );
     }
 
     activate() {
@@ -84,6 +88,7 @@ class Cell {
             this.showMineCount();
             this.addClass( "free" );
         } else {
+            this.setTextContent( "" );
             this.addClass( "mine" );
         }
         this.activated = 1;
