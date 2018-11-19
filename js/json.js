@@ -75,7 +75,7 @@ function makeGame( json ) {
             position[ 1 ] += offset[ 1 ];
         }
 
-        var html = TemplateEngine( cellTemplates[ cellType ], { x: position[ 0 ], y: position[ 1 ] } );
+        var html = TemplateEngine( cellTemplates[ type ], { x: position[ 0 ], y: position[ 1 ] } );
         svg.innerHTML += html;
         var cell = svg.lastElementChild;
 
@@ -94,6 +94,8 @@ function makeGame( json ) {
     for( var i=0; i<seed.length; i++) {
         var cellType = seed[ i ].cell;
         var position = seed[ i ].position;
+		console.log( cellType, position );
+		console.log( cellTemplates );
         var cell = addCell( cellType, position );
         unhandled.push( cell );
     }

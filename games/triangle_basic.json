@@ -1,29 +1,28 @@
 {
     "name": "triangle basic",
-    "body": "<svg xmlns:'http://www.w3.org/2000/svg' viewbox='-${this.radius+4} -${this.radius+4} ${2*this.radius+8} ${2*this.radius+8}'><style> .cell { stroke: white; stroke-width:0.1; }</style></svg>",
+    "body": "<svg xmlns:'http://www.w3.org/2000/svg' viewbox='-${ 1.732 * this.radius } -${this.radius * 3 } ${4*this.radius * 0.866} ${6*this.radius}'><style> .cell { stroke: white; stroke-width:0.1; }</style></svg>",
     "variables": {
-        "radius": 1
+        "radius": 3
     },
     "units": {
-        "X": [ 1.732, 1 ],
-        "Y": [ -1.732, 1 ],
-        "Z": [ 0, -2 ]
+        "X": [ 0.866, 0.5 ],
+        "Y": [ -0.866, 0.5 ]
     },
     "cells": {
         "up_triangle": {
-            "html": "<g class='cell' transform='matrix(1,0,0,1,${this.x},${this.y})'><polygon points='0,1,0.866,-0.5,-0.866,-0.5'></polygon><text></text></g>",
+            "html": "<g class='cell' transform='matrix(1,0,0,1,${this.x},${this.y})'><polygon stroke-linejoin='round' points='0,1,0.866,-0.5,-0.866,-0.5'></polygon><text></text></g>",
             "neighbours": [
                 { "type": "down_triangle", "position": { "X": 1 } },
                 { "type": "down_triangle", "position": { "Y": 1 } },
-                { "type": "down_triangle", "position": { "Z": 1 } }
+                { "type": "down_triangle", "position": { "X": -1, "Y": -1 } }
             ]
         },
         "down_triangle": {
-            "html": "<g class='cell' transform='matrix(1,0,0,1,${this.x},${this.y})'><polygon points='0,-1,0.866,0.5,-0.866,0.5'></polygon><text></text></g>",
+            "html": "<g class='cell' transform='matrix(1,0,0,1,${this.x},${this.y})'><polygon stroke-linejoin='round' points='0,-1,0.866,0.5,-0.866,0.5'></polygon><text></text></g>",
             "neighbours": [
                 { "type": "up_triangle", "position": { "X": -1 } },
                 { "type": "up_triangle", "position": { "Y": -1 } },
-                { "type": "up_triangle", "position": { "Z": -1 } }
+                { "type": "up_triangle", "position": { "X": 1, "Y": 1 } }
             ]
         }
     },
@@ -34,7 +33,7 @@
                 "position": { "X": 0, "Y": 0 }
             }
         ],
-        "rule": "Math.abs( ${this.X} ) <= ${this.radius} && Math.abs( ${this.Y}) <= ${this.radius} && Math.abs( ${this.Z} ) <= ${this.radius}",
+        "rule": "${this.radius}%2==1?( Math.max( Math.abs(${this.X}), Math.abs(${this.Y})) <= ${this.radius} ): Math.abs(${this.X}+${this.Y}) <=${this.radius}",
         "values": "radius"
     }
 }
