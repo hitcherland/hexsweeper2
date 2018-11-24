@@ -1,0 +1,36 @@
+{
+    "name": "triangle basic",
+    "body": "<svg xmlns:'http://www.w3.org/2000/svg' viewbox='-${1.732*radius/2} -${0} ${1.732*radius} ${1.5*radius}'><style> .cell { stroke: white; stroke-width:0.1; } .cell text { font-size: 0.3; stroke-width: 0; fill: white; }</style></svg>",
+    "variables": {
+        "radius": 4
+    },
+    "units": {
+        "X": [ -0.866, 0.5 ],
+        "Y": [ 0.866, 0.5 ]
+    },
+    "cells": {
+        "up_triangle": {
+            "html": "<g class='cell' transform='matrix(1,0,0,1,${x},${y})'><polygon stroke-linejoin='round' points='0,-1,0.866,0.5,-0.866,0.5'></polygon><text></text></g>",
+            "neighbours": [
+                { "type": "up_triangle", "position": { "X": 2, "Y": 1 } },
+                { "type": "down_triangle", "position": { "X": 1, "Y": 1 } },
+                { "type": "up_triangle", "position": { "X": 1, "Y": 2 } }
+            ]
+        },
+        "down_triangle": {
+            "html": "<g class='cell' transform='matrix(1,0,0,1,${x},${y})'><polygon stroke-linejoin='round' points='0,1,0.866,-0.5,-0.866,-0.5'></polygon><text></text></g>",
+            "neighbours": [
+            ]
+        }
+    },
+    "layout": {
+        "seed": [
+            {
+                "cell": "up_triangle",
+                "position": { "X": 0, "Y": 0 }
+            }
+        ],
+        "rule": "${X}+${Y}<=3*(${radius}-1)",
+        "values": "radius"
+    }
+}

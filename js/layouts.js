@@ -1,4 +1,5 @@
 var TemplateEngine = function(html, options) {
+    var keys = Object.keys( options );
     var re = /\${([^}]+)?}/g, reExp = /(^( )?(if|for|else|switch|case|break|{|}))(.*)?/g, code = 'var r=[];\n', cursor = 0, match;
     var add = function(line, js) {
         js? (code += line.match(reExp) ? line + '\n' : 'r.push(' + line + ');\n') :
@@ -6,11 +7,12 @@ var TemplateEngine = function(html, options) {
         return add;
     }
     while(match = re.exec(html)) {
-        add(html.slice(cursor, match.index))(match[1], true);
+        add(html.slice(cursor, match.index))( keys.indexOf( match[ 1 ] ) >=0 ? "this." + match[1] :  match[ 1 ], true);
         cursor = match.index + match[0].length;
     }
     add(html.substr(cursor, html.length - cursor));
     code += 'return r.join("");';
+    console.log( code );
     return new Function(code.replace(/[\r\t\n]/g, '')).apply(options);
 }
 
@@ -75,7 +77,7 @@ function makeGame( json ) {
             position[ 1 ] += offset[ 1 ];
         }
 
-        var html = TemplateEngine( cellTemplates[ type ], { x: position[ 0 ], y: position[ 1 ] } );
+        var html = TemplateEngine( cellTemplates[ type ], {...units, ...{ x: position[ 0 ], y: position[ 1 ] } } );
         svg.innerHTML += html;
         var cell = svg.lastElementChild;
 
@@ -94,8 +96,6 @@ function makeGame( json ) {
     for( var i=0; i<seed.length; i++) {
         var cellType = seed[ i ].cell;
         var position = seed[ i ].position;
-		console.log( cellType, position );
-		console.log( cellTemplates );
         var cell = addCell( cellType, position );
         unhandled.push( cell );
     }
@@ -142,7 +142,3 @@ function makeGame( json ) {
         unhandled = new_unhandled;
     }
 }
-
-//var basic_game = getGameData( "games/hexagonal_basic.json", makeGame );
-//var basic_game = getGameData( "games/square_basic.json", makeGame );
-var basic_game = getGameData( "games/triangle_basic.json", makeGame );

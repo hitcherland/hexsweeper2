@@ -1,38 +1,37 @@
 class Game {
-    constructor( radius, mineRatio ) {
-        var svg = this.svg = document.createElementNS( "http://www.w3.org/2000/svg", "svg" );
-        document.body.appendChild( svg );
-        svg.setAttribute( "xmlns", "http://www.w3.org/2000/svg" );
-        svg.setAttribute( "xmlns:xlink", "http://www.w3.org/1999/xlink" );
-        svg.setAttribute( "viewBox", "0 0 100 100" );
-        svg.setAttribute( "id", "s" );
-        svg.setAttribute( "version", "1.1" );
+    loadFile( path ) {
+        return new Promise( function( resolve, reject ) {
+            var oReq = new XMLHttpRequest();
+            oReq.open( "get", path );
+            oReq.onload = function( e ) {
+                resolve( this.responseText );
+            }
+            oReq.onerror = function( e ) {
+                reject( this.responseText );
+            }
+            oReq.send();
+        });
+    }
 
-        var style = this.style = document.createElementNS( "http://www.w3.org/2000/svg", "style" );
-        svg.appendChild( style );
-        style.setAttribute( "id", "style" );
+    updateMineRatio( mineRatio ) {
+        this.mineRatio = mineRatio;
+        this.mineCount = Math.round( this.count * mineRatio );
+        this.init();
+    }
 
-        var reload = this.reload = document.createElementNS( "http://www.w3.org/2000/svg", "g" );
-        reload.setAttribute( "id", "reload" );
-        reload.setAttribute( "transform", "matrix(0.5,0,0,0.5,88,4)" );
-        var back = document.createElementNS( "http://www.w3.org/2000/svg", "rect" );
-        back.setAttribute( "class", "back" );
-        back.setAttribute( "width", 16 );
-        back.setAttribute( "height", 16 );
-        reload.appendChild( back );        
-
-        var contents = document.createElementNS( "http://www.w3.org/2000/svg", "path" );
-        contents.setAttribute( "d", "M 12.007 8.01 L 12.007 8.488 L 12 8.488 C 12 10.974 9.985 12.988 7.5 12.988 C 5.015 12.988 3 10.974 3 8.488 C 3 6.17 4.759 4.284 7.012 4.037 L 7.012 6.549 L 11.519 3.775 L 7.012 1 L 7.012 3.013 C 4.203 3.26 2 5.615 2 8.488 C 2 11.526 4.462 13.988 7.5 13.988 C 10.509 13.988 12.95 11.571 12.996 8.572 L 13 8.572 L 13 8.01 L 12.007 8.01 Z" );
-        
-        reload.appendChild( contents );
-        svg.appendChild( reload );
-        var this_ = this;
-        reload.onmouseup = function() {
-            this_.init();
-        }
+    updateRadius( radius ) {
+        this.radius = radius;
 
         this.count = 1 + 3 * radius * ( radius + 1 );
-        this.mineCount = Math.round( this.count * mineRatio );
+        this.mineCount = Math.round( this.count * this.mineRatio );
+        this.radius = radius;
+
+        if( this.cells != undefined ) {
+            for( var i=0; i<this.cells.length; i++) {
+                //console.log( i, this.cells[ i ] );
+                this.cells[ i ].domElement.remove();
+            }
+        }
         this.cells = [];
         var cellRadius = 57.1593533487 / ( 2 * radius + 1 );
 
@@ -46,13 +45,6 @@ class Game {
             "#ec0000", // mine fill
             "#b95c00" // flag fill
         );
-
-
-
-        //seed = time( NULL );
-
-        //radius = get_outer_radius();
-        //if( radius < 0 ) radius = 3;
 
         var cartesianConverters = [
             1.7320 * cellRadius,
@@ -109,12 +101,37 @@ class Game {
             this.cells[ i ].neighbours[ 5 ] = !( top_ || top_left ) ? this.cells[ Math.floor( i - 1 ) ]: undefined;
             this.cells[ i ].neighbours = this.cells[ i ].neighbours.filter( x => x !== undefined );
         }
+        this.init();
+    }
 
+
+    constructor( radius, mineRatio ) {
+        var svg = this.svg = document.createElementNS( "http://www.w3.org/2000/svg", "svg" );
+        document.body.appendChild( svg );
+        svg.setAttribute( "xmlns", "http://www.w3.org/2000/svg" );
+        svg.setAttribute( "xmlns:xlink", "http://www.w3.org/1999/xlink" );
+        svg.setAttribute( "viewBox", "0 0 100 100" );
+        svg.setAttribute( "id", "s" );
+        svg.setAttribute( "version", "1.1" );
+        svg.setAttribute( "baseProfile", "tiny" );
+
+        var style = this.style = document.createElementNS( "http://www.w3.org/2000/svg", "style" );
+        svg.appendChild( style );
+        style.setAttribute( "id", "style" );
+
+        this.makeReload();
+        this.makeSettings();
+
+        this.mineRatio = mineRatio;
+        this.updateRadius( radius );
     }
 
     init() {
         this.svg.setAttribute( "style", "opacity: 0" );
-        this.reload.setAttribute( "class", "");
+        if( this.reload == "undefined" ) {
+            this.reload.setAttribute( "class", "");
+            
+        }
         this.mines = chance.pickset( this.cells, this.mineCount );
         this.cells.map( x => x.activated = 0 );
         this.cells.map( x => x.setClass( "hex" ) );
@@ -125,8 +142,128 @@ class Game {
         var this_ = this;
         window.setTimeout( function() {
             this_.svg.setAttribute( "style", "" );
-        }, 1000 );
+        }, 500 );
     }
+
+    makeReload() {
+        var this_ = this;
+        this.loadFile( "img/reload.svg" ).then( function( content ) {
+            var reload = this_.reload = document.createElementNS( "http://www.w3.org/2000/svg", "g" );
+            reload.setAttribute( "id", "reload" );
+            reload.setAttribute( "transform", "matrix(0.1,0,0,0.1,92,0)" );
+            this_.svg.appendChild( reload );
+
+            this_.reload.innerHTML += content;
+            var reload = this_.reload = this_.svg.lastElementChild;
+            reload.onmouseup = function( e ) {
+                if( e.button == 0 ) 
+                    this_.init();
+            }
+
+            var back = document.createElementNS( "http://www.w3.org/2000/svg", "rect" );
+            back.setAttribute( "class", "back" );
+            back.setAttribute( "x", 0 );
+            back.setAttribute( "y", 0 );
+            back.setAttribute( "width", 16 );
+            back.setAttribute( "height", 16 );
+            reload.firstElementChild.insertBefore( back, reload.firstElementChild.firstElementChild );
+        } );
+    }
+
+    makeSettings() {
+        var this_ = this;
+        this.loadFile( "img/settings.svg" ).then( function( content ) {
+            var settingsButton = this_.settingsButton = document.createElementNS( "http://www.w3.org/2000/svg", "g" );
+            settingsButton.setAttribute( "id", "settingsButton" );
+            settingsButton.setAttribute( "transform", "matrix(0.1,0,0,0.1,0,0)" );
+            settingsButton.setAttribute( "class", "win" );
+            this_.svg.appendChild( settingsButton );
+
+            this_.settingsButton.innerHTML += content;
+            var settingsButton = this_.settingsButton = this_.svg.lastElementChild;
+            settingsButton.onmouseup = function( e ) {
+                if( e.button == 0 ) 
+                    this_.toggleSettings();
+            }
+
+            var back = document.createElementNS( "http://www.w3.org/2000/svg", "rect" );
+            back.setAttribute( "class", "back" );
+            back.setAttribute( "x", 0 );
+            back.setAttribute( "y", -256 );
+            back.setAttribute( "width", 1792 );
+            back.setAttribute( "height", 1792 );
+            settingsButton.firstElementChild.insertBefore( back, settingsButton.firstElementChild.firstElementChild );
+
+            var settings = this_.settingsPage = document.createElement( "div" );
+            document.body.appendChild( settings );
+            settings.setAttribute( "id", "settings" );
+            settings.setAttribute( "class", "invisible" );
+
+            var radiusInput = document.createElement( "input" )
+            radiusInput.setAttribute( "type", "number" )
+            radiusInput.setAttribute( "value", this_.radius );
+            radiusInput.setAttribute( "step", 1 );
+            radiusInput.setAttribute( "min", 0 );
+            radiusInput.onchange = function( e ) { 
+                this_.updateRadius( parseInt( this.value ) );
+            };
+            var radiusInput = this_.makeSettingInput( "radius", {
+                "type": "number",
+                "value": this_.radius,
+                "step": 1,
+                "min": 0
+            }, function( e ) { 
+                this_.updateRadius( parseInt( this.value ) );
+            });
+            settings.appendChild( radiusInput );
+
+            var mineRatioInput = this_.makeSettingInput( "mine:cell ratio", {
+                "type": "range",
+                "min": 0,
+                "max": 1,
+                "step": 0.001,
+                "value": this_.mineRatio,
+            }, function( e ) { 
+                this_.updateMineRatio( parseFloat( this.value ) );
+            });
+            settings.appendChild( mineRatioInput );
+
+            var okay =document.createElement( "div" );
+            okay.setAttribute( "class", "okay" );
+            settings.appendChild( okay );
+            okay.innerHTML = "BACK";
+            okay.onclick = function(e){ this_.toggleSettings(); }
+
+        } );        
+    }
+
+    makeSettingInput( name, args, onchange ) {
+        var input_div = document.createElement( "div" )
+        var label = document.createElement( "label" )
+        label.innerHTML = name;
+        input_div.appendChild( label );
+        var input = document.createElement( "input" )
+        input_div.appendChild( input );
+        var keys = Object.keys( args );
+        for( var i=0; i<keys.length; i++) {
+            var key = keys[ i ];
+            var value = args[ key ];
+            input.setAttribute( key, value );
+        }
+        input.onchange = onchange;
+        return input_div;
+    }
+
+    toggleSettings() {
+        var state = this.settingsPage.getAttribute( "class" );
+        if( state == "invisible" ) {
+            this.settingsPage.setAttribute( "class", "visible" );
+        } else {
+            this.settingsPage.setAttribute( "class", "invisible" );
+        }
+    }
+
+
 
     setStyle( transition_speed, stroke, unknown_stroke_width, 
               unknown_stroke_fill, hover_stroke_width, free_fill, mine_fill, 
@@ -187,26 +324,45 @@ class Game {
         .hex.mine > polygon { fill: #ec0000; }
         .hex.flag > polygon { fill: #b95c00; }
 
-        #reload {
-            cursor: pointer;
-            fill: white;
+        #settingsButton, #reload { cursor: pointer; }
+        #reload path, #settingsButton path { fill: #fff; opacity: 0.4 }
+        #settingsButton:hover path, #reload:hover path { opacity: 1; }
+
+        #reload.win path { fill: ${free_fill}; }
+        #reload.lose path { fill: ${mine_fill}; }
+
+
+        #settings {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            min-height: 100%;
+            background: black;
+            display: initial;
+        }
+
+        #settings.invisible {
             display: none;
         }
 
-        #reload .back {
-            opacity: 0;
+        #settings > div {
+            background: white;
+            color: black;
+            margin-left: 50%;
+            transform:translate( -50% );
+            text-align:center;
+            font-size: 16px;
+            margin-top: 2px;
         }
 
-        #reload.win {
-            fill: ${free_fill};
-            display: initial;
+        #settings .okay {
+            color: black;
+            background: white;
+            min-width: 25%;
+            cursor: pointer;
+            
         }
-
-        #reload.lose {
-            fill: ${mine_fill};
-            display: initial;
-        }
-
     `;
     }
 
