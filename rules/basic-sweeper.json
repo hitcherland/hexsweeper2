@@ -1,0 +1,44 @@
+{
+    "information": {
+        "global": {
+            "mineTotal": [ "$unknown", "$cells" ],
+            "freeTotal": [ "$unknown", "$cells" ]
+        },
+        "cell": {
+            "mineTotal": [ "$neighbours" ]
+        }
+    },
+    "win": {
+        "global": {
+            "mineTotal": {
+                "$unknown": 0
+            }
+        }
+    },
+    "lose": {
+        "global": {
+            "mineTotal": {
+                "$known": "${lives.count}"
+            }
+        }
+    },
+    "lives": {
+        "count": 1,
+        "onLifeLoss": "$nextGame"
+    },
+    "cell": {
+        "variables": {
+            "isMine": "long",
+            "neighbours": "array"
+        },
+        "states": {
+            "unknown": [ 
+            "known": [ "free", "mine" ] 
+            [ "unknown", "known" ],
+            [ "
+        }[ "unknown", "free", "mine", "flag" ],
+        "actions": {
+            "click": 
+        }
+    }
+}
