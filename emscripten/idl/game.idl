@@ -1,0 +1,3 @@
+interface Layout {
+    void Layout(DOMString sourceFile);
+};
