@@ -195,7 +195,7 @@ Module['FS_createPath']('/', 'layouts', true, true);
   }
 
  }
- loadPackage({"files": [{"filename": "/layouts/triangle_basic.json", "start": 0, "end": 1396, "audio": 0}, {"filename": "/layouts/hexagonal_basic.json", "start": 1396, "end": 2723, "audio": 0}, {"filename": "/layouts/square_basic.json", "start": 2723, "end": 4090, "audio": 0}], "remote_package_size": 4090, "package_uuid": "dc7dcecf-6eb3-4eee-8521-879856e5a415"});
+ loadPackage({"files": [{"filename": "/layouts/triangle_basic.json", "start": 0, "end": 1396, "audio": 0}, {"filename": "/layouts/hexagonal_basic.json", "start": 1396, "end": 2723, "audio": 0}, {"filename": "/layouts/square_basic.json", "start": 2723, "end": 4090, "audio": 0}], "remote_package_size": 4090, "package_uuid": "e477ce21-7e84-4a18-b5d5-4cf1ee7e0a02"});
 
 })();
 

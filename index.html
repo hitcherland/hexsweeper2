@@ -4,7 +4,7 @@
         <link href="icon/icon.svg" rel="icon" type="image/svg"/>
 		<style>
 			body { background: black; margin: 0; }
-			svg {
+			svg#s {
                 position: absolute;
 				width: 100vmin;
 				height: 100vmin;
@@ -17,18 +17,9 @@
         <script type="text/javascript" src="js/cell.js"></script>
         <script type="text/javascript" src="js/game.js"></script>
         <script type="text/javascript" src="js/solver.js"></script>
-        <script type="text/javascript" src="emscripten/build/sweeper.js"></script>
     </head>
     <body>
         <script>
-            Sweeper.locateFile = function( path, prefix) {
-                console.log( path, prefix );
-                return "/emscripten/build/sweeper.data";
-            }
-
-            var sweeper = new Sweeper().then( function( sweeper ) {
-                var layout = new sweeper.Layout( "hexagonal_basic"  );
-            });
             function getQuery( name ) {
                 var url = window.location.href;
                 var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");

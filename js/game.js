@@ -150,7 +150,8 @@ class Game {
         this.loadFile( "img/reload.svg" ).then( function( content ) {
             var reload = this_.reload = document.createElementNS( "http://www.w3.org/2000/svg", "g" );
             reload.setAttribute( "id", "reload" );
-            reload.setAttribute( "transform", "matrix(0.1,0,0,0.1,92,0)" );
+            reload.setAttribute( "transform", "matrix(0.5,0,0,0.5,88,4)" );
+
             this_.svg.appendChild( reload );
 
             this_.reload.innerHTML += content;
@@ -175,7 +176,7 @@ class Game {
         this.loadFile( "img/settings.svg" ).then( function( content ) {
             var settingsButton = this_.settingsButton = document.createElementNS( "http://www.w3.org/2000/svg", "g" );
             settingsButton.setAttribute( "id", "settingsButton" );
-            settingsButton.setAttribute( "transform", "matrix(0.1,0,0,0.1,0,0)" );
+            settingsButton.setAttribute( "transform", "matrix(0.5,0,0,0.5,4,4)" );
             settingsButton.setAttribute( "class", "win" );
             this_.svg.appendChild( settingsButton );
 
@@ -189,9 +190,9 @@ class Game {
             var back = document.createElementNS( "http://www.w3.org/2000/svg", "rect" );
             back.setAttribute( "class", "back" );
             back.setAttribute( "x", 0 );
-            back.setAttribute( "y", -256 );
-            back.setAttribute( "width", 1792 );
-            back.setAttribute( "height", 1792 );
+            back.setAttribute( "y", 0 );
+            back.setAttribute( "width", 16 );
+            back.setAttribute( "height", 16 );
             settingsButton.firstElementChild.insertBefore( back, settingsButton.firstElementChild.firstElementChild );
 
             var settings = this_.settingsPage = document.createElement( "div" );
