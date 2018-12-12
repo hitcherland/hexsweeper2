@@ -13,6 +13,8 @@
                 transform: translate( -50%, -50% );
 			}
 		</style>
+        <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="js/layout.js"></script>
         <script type="text/javascript" src="js/chance.min.js"></script>
         <script type="text/javascript" src="js/cell.js"></script>
         <script type="text/javascript" src="js/game.js"></script>
@@ -28,11 +30,18 @@
                 if (!results[2]) return undefined;
                 return decodeURIComponent( results[2]);
             }
-            var radius = parseInt( getQuery( "radius" ) || 3 );
-            var mineRatio = parseFloat( getQuery( "mineRatio" ) || 0.1 );
+			var variables = {
+				"radius": parseInt( getQuery( "radius" ) || 3 ),
+				"mineRatio": parseFloat( getQuery( "mineRatio" ) || 0.1 )
+			}
 
-            var game = new Game( radius, mineRatio );
-            game.init();
+			getLayout( "triangle_basic", variables ).then( function( layout ) {
+				console.log( "hello", layout );
+				document.body.appendChild( layout );
+			}).catch( function( e ) { console.log( e )});
+
+            //var game = new Game( radius, mineRatio );
+            //game.init();
         </script>
 	</body>
 </html>

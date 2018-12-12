@@ -3,56 +3,62 @@
         "variables": {
 			"public": {
 				"neighbours": "array",
-				"state": [ "unknown", "known-mine", "known-free", "flagged" ],
+				"state": [ "unknown", "known-mine", "known-free", "flagged" ]
 			},
 			"private": {
-				"isMine": "bool",
+				"isMine": "bool"
 			}
 		},
 		"events": {
-			"leftClick": "if( $global.click == 0 ) { $global.click = 1; $global.initialise(); };",
-		},
+			"leftClick": "if( $global.click == 0 ) { $global.click = 1; $global.initialise(); };"
+		}
     },
 	"global": {
 		"variables": {
 			"public": {
 				"state": [ "playing", "win", "lose" ],
-				"unknown": { "get": "$cells.map( x => x.state == "unknown" )" },
-				"known": { "get": "$cells.map( x => x.state.startsWith( "known" ) )" },
+				"unknown": { "get": "$cells.map( x => x.state == 'unknown' )" },
+				"known": { "get": "$cells.map( x => x.state.startsWith( 'known' ) )" },
 				"allMineTotal": { "get": "$cells.reduce( (a,b) => a + (b.isMine?1:0), 0 )" },
 				"knownMineTotal": { "get": "$cells.reduce( (a,b) => a + (b.isMine && b.state == 'known-mine')?1:0), 0 )" },
 				"allFreeTotal": { "get": "$cells.reduce( (a,b) => a + (b.isMine?0:1), 0 )" },
 				"freeTotal": { "get": "$cells.reduce( (a,b) => a + (b.isMine?0:1), 0 )" },
 				"mineCount": 10,
-				"lives": 1,
+				"lives": 1
 			},
 			"private": {
-				"click": 0,
-			},
+				"click": 0
+			}
 		},
 		"actions": {
-			"reset": "$global.lives = 1; $cells.forEach( c => { c.isMine = false; c.state = "unknown"; }" );
-			"initialise": "$cells.subset( $global.mineCount  ).forEach( c => c.isMine = true )",
-		},
+			"reset": [
+				"$global.lives = 1",
+				"$cells.forEach( c => c.isMine = false )",
+				"$cells.forEach( c => c.state = 'unknown' )"
+			],
+			"initialise": [
+				"$cells.subset( $global.mineCount  ).forEach( c => c.isMine = true )"
+			]
+		}
 	},
 	"rules": [
-		{ requirements: [ "$global.click == 1" ],
-		  response: [ "$global.actions.initialise()" ]
+		{ "requirements": [ "$global.click == 1" ],
+		  "response": [ "$global.actions.initialise()" ]
 		},{ 
-		  requirements: [ "$global.knownMineTotal > 0" ],
-		  response: [ "$global.lives -= 1" ],
+		  "requirements": [ "$global.knownMineTotal > 0" ],
+		  "response": [ "$global.lives -= 1" ]
 		},{
-		  requirements: [ "$global.lives == 0" ],
-		  response: [ "$global.state = 'lose'" ],
+		  "requirements": [ "$global.lives == 0" ],
+		  "response": [ "$global.state = 'lose'" ]
 		},{
-		  requirements: [ "$global.unflaggedMineTotal == 0" ],
-		  response: [ "$global.state = 'win'" ],
+		  "requirements": [ "$global.unflaggedMineTotal == 0" ],
+		  "response": [ "$global.state = 'win'" ]
 		},{
-		  requirements: [ "$global.freeTotal == 0" ],
-		  response: [ "$global.state = 'win'" ],
+		  "requirements": [ "$global.freeTotal == 0" ],
+		  "response": [ "$global.state = 'win'" ]
 		},{
-		  requirements: [ "$global.state != 'playing'" ],
-		  response: [],
+		  "requirements": [ "$global.state != 'playing'" ],
+		  "response": []
 		}
 	]
 }

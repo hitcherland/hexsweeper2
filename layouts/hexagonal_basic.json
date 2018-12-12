@@ -1,6 +1,6 @@
 {
     "name": "hexagonal basic",
-    "body": "<svg xmlns:'http://www.w3.org/2000/svg' viewbox='-${radius} -${radius} ${2*radius} ${2*radius}'><style> .cell { stroke: white; stroke-width:0.1; }</style></svg>",
+    "body": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewbox=\"-${radius} -${radius} ${2*radius} ${2*radius}\"><style> .cell { stroke: white; stroke-width:0.1; }</style></svg>",
     "variables": {
         "radius": 4
     },
@@ -28,7 +28,6 @@
                 "position": { "H": 0, "I": 0 }
             }
         ],
-        "rule": "Math.abs( ${H} + ${I} ) <= ${radius} && Math.abs( ${H} ) <= ${radius} && Math.abs( ${I}) <= ${radius}",
-        "values": "radius"
+        "rule": "Math.abs( ${H} + ${I} ) <= ${radius} && Math.abs( ${H} ) <= ${radius} && Math.abs( ${I} ) <= ${radius}"
     }
 }
