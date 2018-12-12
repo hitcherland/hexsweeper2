@@ -1,44 +1,58 @@
 {
-    "information": {
-        "global": {
-            "mineTotal": [ "$unknown", "$cells" ],
-            "freeTotal": [ "$unknown", "$cells" ]
-        },
-        "cell": {
-            "mineTotal": [ "$neighbours" ]
-        }
-    },
-    "win": {
-        "global": {
-            "mineTotal": {
-                "$unknown": 0
-            }
-        }
-    },
-    "lose": {
-        "global": {
-            "mineTotal": {
-                "$known": "${lives.count}"
-            }
-        }
-    },
-    "lives": {
-        "count": 1,
-        "onLifeLoss": "$nextGame"
-    },
     "cell": {
         "variables": {
-            "isMine": "long",
-            "neighbours": "array"
-        },
-        "states": {
-            "unknown": [ 
-            "known": [ "free", "mine" ] 
-            [ "unknown", "known" ],
-            [ "
-        }[ "unknown", "free", "mine", "flag" ],
-        "actions": {
-            "click": 
-        }
-    }
+			"public": {
+				"neighbours": "array",
+				"state": [ "unknown", "known-mine", "known-free", "flagged" ],
+			},
+			"private": {
+				"isMine": "bool",
+			}
+		},
+		"events": {
+			"leftClick": "if( $global.click == 0 ) { $global.click = 1; $global.initialise(); };",
+		},
+    },
+	"global": {
+		"variables": {
+			"public": {
+				"state": [ "playing", "win", "lose" ],
+				"unknown": { "get": "$cells.map( x => x.state == "unknown" )" },
+				"known": { "get": "$cells.map( x => x.state.startsWith( "known" ) )" },
+				"allMineTotal": { "get": "$cells.reduce( (a,b) => a + (b.isMine?1:0), 0 )" },
+				"knownMineTotal": { "get": "$cells.reduce( (a,b) => a + (b.isMine && b.state == 'known-mine')?1:0), 0 )" },
+				"allFreeTotal": { "get": "$cells.reduce( (a,b) => a + (b.isMine?0:1), 0 )" },
+				"freeTotal": { "get": "$cells.reduce( (a,b) => a + (b.isMine?0:1), 0 )" },
+				"mineCount": 10,
+				"lives": 1,
+			},
+			"private": {
+				"click": 0,
+			},
+		},
+		"actions": {
+			"reset": "$global.lives = 1; $cells.forEach( c => { c.isMine = false; c.state = "unknown"; }" );
+			"initialise": "$cells.subset( $global.mineCount  ).forEach( c => c.isMine = true )",
+		},
+	},
+	"rules": [
+		{ requirements: [ "$global.click == 1" ],
+		  response: [ "$global.actions.initialise()" ]
+		},{ 
+		  requirements: [ "$global.knownMineTotal > 0" ],
+		  response: [ "$global.lives -= 1" ],
+		},{
+		  requirements: [ "$global.lives == 0" ],
+		  response: [ "$global.state = 'lose'" ],
+		},{
+		  requirements: [ "$global.unflaggedMineTotal == 0" ],
+		  response: [ "$global.state = 'win'" ],
+		},{
+		  requirements: [ "$global.freeTotal == 0" ],
+		  response: [ "$global.state = 'win'" ],
+		},{
+		  requirements: [ "$global.state != 'playing'" ],
+		  response: [],
+		}
+	]
 }
