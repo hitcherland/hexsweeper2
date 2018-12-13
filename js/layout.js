@@ -40,7 +40,10 @@ function getLayout( layout_name, outer_variables ) {
 
 		var seedElements = seed.map( s => { 
 			body[ 0 ].innerHTML += cellTemplate( cell_types[ s.cell ].html, units, s.position ) 
-			return { "cell": cell_types[ s.cell ], "position": s.position, "node": body[ 0 ].lastChild };
+				var node = body[ 0 ].lastChild;
+				$( node ).data( "position", s.position )
+					.attr( "sweeper", "cell" );
+			return { "cell": cell_types[ s.cell ], "position": s.position, "node": node };
 		});
 
 		var ungrownSeeds = seedElements;
@@ -61,7 +64,10 @@ function getLayout( layout_name, outer_variables ) {
 
 					body[ 0 ].innerHTML += cellTemplate( cell_types[ n.type ].html, units, p ) 
 					takenPositions.push( pS );
-					return { "cell": cell_types[ n.type ], "position": p, "node": body[ 0 ].lastChild };
+					var node = body[ 0 ].lastChild;
+					$( node ).data( "position", p )
+						.attr( "sweeper", "cell" );
+					return { "cell": cell_types[ n.type ], "position": p, "node": node };
 				})
 			}));
 			ungrownSeeds = newSeeds.filter( x => x !==undefined );;

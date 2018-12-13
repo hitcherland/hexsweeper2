@@ -4,7 +4,7 @@
         <link href="icon/icon.svg" rel="icon" type="image/svg"/>
 		<style>
 			body { background: black; margin: 0; }
-			svg#s {
+			svg {
                 position: absolute;
 				width: 100vmin;
 				height: 100vmin;
@@ -14,8 +14,9 @@
 			}
 		</style>
         <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
-        <script type="text/javascript" src="js/layout.js"></script>
         <script type="text/javascript" src="js/chance.min.js"></script>
+        <script type="text/javascript" src="js/layout.js"></script>
+        <script type="text/javascript" src="js/rule.js"></script>
         <script type="text/javascript" src="js/cell.js"></script>
         <script type="text/javascript" src="js/game.js"></script>
         <script type="text/javascript" src="js/solver.js"></script>
@@ -35,13 +36,21 @@
 				"mineRatio": parseFloat( getQuery( "mineRatio" ) || 0.1 )
 			}
 
-			getLayout( "triangle_basic", variables ).then( function( layout ) {
-				console.log( "hello", layout );
+			var cells = undefined;
+			getLayout( "hexagonal_basic", variables ).then( function( layout ) {
 				document.body.appendChild( layout );
+				getRule( "basic-sweeper" ).then( function( rule ) {
+					window.cells = $( layout ).find( '[sweeper=cell]' ).map( 
+						(i,e) => new rule.Cell( e, $( e ).data( 'position' ) )
+					);
+				});
 			}).catch( function( e ) { console.log( e )});
 
-            //var game = new Game( radius, mineRatio );
-            //game.init();
+
+			/*
+            var game = new Game( radius, mineRatio );
+            game.init();
+			*/
         </script>
 	</body>
 </html>

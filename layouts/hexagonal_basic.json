@@ -1,6 +1,6 @@
 {
     "name": "hexagonal basic",
-    "body": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewbox=\"-${radius} -${radius} ${2*radius} ${2*radius}\"><style> .cell { stroke: white; stroke-width:0.1; }</style></svg>",
+    "body": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewbox=\"-${radius+0.5} -${radius+0.5} ${2*radius+1} ${2*radius+1}\"><style> .cell { stroke: white; stroke-width:0.1; }</style></svg>",
     "variables": {
         "radius": 4
     },

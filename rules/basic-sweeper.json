@@ -2,11 +2,12 @@
     "cell": {
         "variables": {
 			"public": {
+				"position": "position",
 				"neighbours": "array",
 				"state": [ "unknown", "known-mine", "known-free", "flagged" ]
 			},
 			"private": {
-				"isMine": "bool"
+				"isMine": "bool" 
 			}
 		},
 		"events": {
