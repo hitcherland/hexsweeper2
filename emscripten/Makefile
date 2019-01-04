@@ -1,33 +1,16 @@
-all: build/sweeper.js
+all: output/js/main.js output/html/index.html
 
-build:
-	mkdir build
+output/js/main.js: src/main.cpp
+	@mkdir -p output/js ||:
+	emcc -o output/js/main.js src/main.cpp 
 
-build/sweeper.js: build build/glue.js build/glue.cpp main.cpp src/* include/*
-	emcc -s WASM=0 -s MODULARIZE=1 -s EXPORT_NAME=Sweeper -s DEMANGLE_SUPPORT=1\
-        --pre-js module.js \
-        --post-js build/glue.js \
-        --preload-file ../layouts\
-        -o build/sweeper.js \
-        -L/usr/lib -Iinclude -Ibuild \
-        $(shell pkg-config --cflags --libs json-c) \
-        src/*.cpp main.cpp
+test_js: output/js/main.js
+	node output/js/main.js
 
-html: build build/glue.js build/glue.cpp main.cpp src/* include/*
-	emcc -s WASM=0 -s DEMANGLE_SUPPORT=1\
-        --post-js build/glue.js \
-        --preload-file ../layouts\
-        -o build/sweeper.html \
-        --shell-file shell.html \
-        -L/usr/lib -Iinclude -Ibuild \
-        $(shell pkg-config --cflags --libs json-c) \
-        src/*.cpp main.cpp
-
-
-build/glue.js: idl/*
-	cd build; python /usr/lib/emscripten/tools/webidl_binder.py ../idl/game.idl glue
-
-build/glue.cpp: build build/glue.js
+output/html/index.html: html/index.html src/main.cpp js/* css/* img/*
+	@mkdir -p output/html ||:
+	@cp -r js/ css/ img/ output/html ||:
+	emcc --pre-js js/pre.js --shell-file html/index.html -o output/html/index.html src/main.cpp 
 
 clean:
-	rm -r build
+	rm -rf output

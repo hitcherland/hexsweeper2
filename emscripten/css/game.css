@@ -1,0 +1,151 @@
+body { 
+	margin: 0; 
+	background: #0f0f0f;
+	background:
+		linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) 0 0,
+		linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) 0 0,
+		linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) 7px -15px,
+		linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) 7px -15px,
+		#0f0f0f;
+	background-size: 15px 30px;
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	animation: pulse 20s linear infinite;
+}
+
+@keyframes pulse {
+	0% { 
+		background: #0f0f0f;
+		background:
+			linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) 0 0,
+			linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) 0 0,
+			linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) 7px -15px,
+			linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) 7px -15px,
+			#0f0f0f;
+		background-size: 15px 30px;
+
+	}
+	25% { 
+		background: #0f0f0f;
+		background:
+			linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) 0 0,
+			linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) 0 0,
+			linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) -8px -15px,
+			linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) -8px -15px,
+			#0f0f0f;
+		background-size: 15px 30px;
+	}
+	50% { 
+		background: #0f0f0f;
+		background:
+			linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) 15px 0,
+			linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) 15px 0,
+			linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) -8px -15px,
+			linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) -8px -15px,
+			#0f0f0f;
+		background-size: 15px 30px;
+
+	}
+	75% { 
+		background: #0f0f0f;
+		background:
+			linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) 15px 0,
+			linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) 15px 0,
+			linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) 7px -15px,
+			linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) 7px -15px,
+			#0f0f0f;
+		background-size: 15px 30px;
+	}
+	100% { 
+		background: #0f0f0f;
+		background:
+			linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) 0 0,
+			linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) 0 0,
+			linear-gradient(115deg, transparent 75%, rgba(255,255,255,.05) 75%) 7px -15px,
+			linear-gradient(245deg, transparent 75%, rgba(255,255,255,.05) 75%) 7px -15px,
+			#0f0f0f;
+		background-size: 15px 30px;
+
+	}
+}
+
+#container {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate( -50%, -50% );	
+}
+
+svg#game {
+	width: calc( 100vmin - 2rem );
+	height: calc( 100vmin - 2rem );
+
+	min-width: 256px;
+	min-height: 256px;
+}
+
+#menu {
+	background: black;
+	width: calc( 100vmin - 2rem );
+	height: 2rem;
+
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+}
+
+@media (max-aspect-ratio: 11/10 ) {
+	svg#game {
+		width: auto;
+		height: calc( 100vmin - 2rem );
+	}
+
+	#menu {
+		width: 100vmin;
+	}
+}
+
+#menu > #reload, #menu > #settings_button, #menu > #title {
+	position: relative;
+	height: 2rem;
+	line-height: 2rem;
+	display: inline-block;
+	text-align: center;
+}
+
+#menu > #reload {
+	justify-self: end;
+}
+
+#menu > #settings_button {
+	justify-self: start;
+}
+
+#menu > #title {
+	color: white;
+	font-family: monospace;
+	font-size: 2rem;
+}
+
+#menu > svg {
+	background: transparent;
+	cursor:pointer
+}
+
+#menu > svg > path {
+	fill: white;
+}
+
+#menu > svg:hover > path {
+	fill: red;
+}
+
+#game polygon {
+	fill: black;
+	stroke: white;
+	stroke-width: 0.05vmin;
+}
+
+#game polygon:hover {
+	fill: #222;
+}
