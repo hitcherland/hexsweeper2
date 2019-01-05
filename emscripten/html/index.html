@@ -4,16 +4,53 @@
         <link href="icon/icon.svg" rel="icon" type="image/svg"/>
 		<link rel="stylesheet" type="text/css" href="css/game.css"></link>
         <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+        <script>
+            $(function() {
+                $( '[name="mine_ratio"]' ).change( function() {
+                    $( '[name="mine_ratio"]' ).val( this.value );
+                });
+
+                $( '[name="radius"]' ).change( function() {
+                    _update_radius( this.value );
+                });
+            });
+        </script>
     </head>
     <body>
-		<div id="container">
-			<div id="menu">
-				<svg id="settings_button" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" version="1"><path stroke-width="96" d="M11 8l-1 2-2 1-2-1-1-2 1-2 2-1 2 1 1 2zm5 1V7 6h-2l-1-1 1-1h1V3l-2-1-1-1v1l-1 1-1-1V0H6v2L5 3 4 2V1L3 2 2 3 1 4h1l1 1-1 1H0v4h2l1 1-1 1H1l1 1 1 1 1 1v-1l1-1 1 1v2h4v-2l1-1 1 2 1-1 1-1 1-1h-1l-1-1 1-1h2V9z"/></svg>
-				<div id="title">sweeper</div>
-				<svg id="reload" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16"><path d="M13.55 8.64v.58a5.54 5.54 0 1 1-11.1 0A5.53 5.53 0 0 1 7.4 3.74v3.1l5.55-3.42L7.4 0v2.48a6.77 6.77 0 1 0 7.37 6.85v-.7z" class="filled"/></svg>
-			</div>
-			<svg id='game' viewbox="-50 -50 100 100"></svg>
-		</div>
-		{{{ SCRIPT }}}
+        <div id="layout" class="g-3x3 g-border-2rem square-fill min-square-250 center middle">
+            <svg class="g-tl" id="show_options" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" version="1"><path stroke-width="96" d="m11 8l-1 2-2 1-2-1-1-2 1-2 2-1 2 1 1 2zm5 1v7 6h-2l-1-1 1-1h1v3l-2-1-1-1v1l-1 1-1-1v0h6v2l5 3 4 2v1l3 2 2 3 1 4h1l1 1-1 1h0v4h2l1 1-1 1h1l1 1 1 1 1 1v-1l1-1 1 1v2h4v-2l1-1 1 2 1-1 1-1 1-1h-1l-1-1 1-1h2v9z"/></svg>
+            <div class="g-tc" id="title">sweeper</div>
+            <svg class="g-tr" id="reload" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16"><path d="m13.55 8.64v.58a5.54 5.54 0 1 1-11.1 0a5.53 5.53 0 0 1 7.4 3.74v3.1l5.55-3.42l7.4 0v2.48a6.77 6.77 0 1 0 7.37 6.85v-.7z" class="filled"/></svg>
+
+            <svg class="g-mc min-square-250" id='game' viewbox="-50 -50 100 100"></svg>
+
+            <div class="g-bc toggles">
+                <div class="selected button" id="reveal">reveal</div>
+                <div class="button" id="flag">flag</div>
+            </div>
+            <div class="g-br button" id="fullscreen">F</div>
+        </div>
+        {{{ SCRIPT }}}
+        <div id="help">
+        </div>
+        <div id="options">
+            <div id="hide_options" class="hide">X</div>
+            <div class="layout">
+                <h1>options</h1>
+                <div>
+                    <h2>radius</h2>
+                    <div class="description">set how big the grid is from the center to a corner</div>
+                    <input type="number" value=4 min=1 name="radius">
+                </div>
+                <div>
+                    <h2>mine ratio</h2>
+                    <div class="description" >set the mine/not-mine cell ratio. higher normally means harder, a normal difficulty is between 0.2 and 0.3</div>
+                    <div class="pair"> 
+                        <input type="range" value=0.3 min=0 max=1 step=0.01 name="mine_ratio">
+                        <input type="number" value=0.3 min=0 max=1 step=0.01 name="mine_ratio">
+                    </div>
+                </div>
+            </div>
+        </div>
 	</body>
 </html>
