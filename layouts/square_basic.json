@@ -1,0 +1,36 @@
+{
+    "name": "square basic",
+    "body": "<svg xmlns:'http://www.w3.org/2000/svg' viewbox='-${radius+1} -${radius+1} ${2*radius+2} ${2*radius+2}'><style> .cell { stroke: white; stroke-width:0.1; }</style></svg>",
+    "variables": {
+        "radius": 4
+    },
+    "units": {
+        "X": [ 1, 0 ],
+        "Y": [ 0, 1 ]
+    },
+    "cells": {
+        "square": {
+            "html": "<g class='cell' transform='matrix(1,0,0,1,${x},${y})'><rect x='-0.5' y='-0.5' width=1 height=1></rect><text></text></g>",
+            "neighbours": [
+                { "type": "square", "position": { "X": 1 } },
+                { "type": "square", "position": { "X": -1 } },
+                { "type": "square", "position": { "Y": 1 } },
+                { "type": "square", "position": { "Y": -1 } },
+                { "type": "square", "position": { "X": 1, "Y": -1 } },
+                { "type": "square", "position": { "X": -1, "Y": -1 } },
+                { "type": "square", "position": { "X": -1, "Y": 1 } },
+                { "type": "square", "position": { "X": 1, "Y": 1 } }
+            ]
+        }
+    },
+    "layout": {
+        "seed": [
+            {
+                "cell": "square",
+                "position": { "X": 0, "Y": 0 }
+            }
+        ],
+        "rule": "Math.abs( ${X} ) <= ${radius} && Math.abs( ${Y}) <= ${radius}",
+        "values": "radius"
+    }
+}

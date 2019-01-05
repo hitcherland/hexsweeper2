@@ -4,14 +4,35 @@
         <link href="icon/icon.svg" rel="icon" type="image/svg"/>
 		<style>
 			body { background: black; margin: 0; }
-			svg {
+			svg#s {
                 position: absolute;
-				width: 100%;
-				height: 100%;
+				width: 100vmin;
+				height: 100vmin;
+                top: 50%;
+                left: 50%;
+                transform: translate( -50%, -50% );
 			}
 		</style>
+        <script type="text/javascript" src="js/chance.min.js"></script>
+        <script type="text/javascript" src="js/cell.js"></script>
+        <script type="text/javascript" src="js/game.js"></script>
+        <script type="text/javascript" src="js/solver.js"></script>
     </head>
     <body>
-        <script type="text/javascript" src="sweeper.js"></script>
+        <script>
+            function getQuery( name ) {
+                var url = window.location.href;
+                var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+                var results = regex.exec(url);
+                if (!results) return undefined;
+                if (!results[2]) return undefined;
+                return decodeURIComponent( results[2]);
+            }
+            var radius = parseInt( getQuery( "radius" ) || 3 );
+            var mineRatio = parseFloat( getQuery( "mineRatio" ) || 0.1 );
+
+            var game = new Game( radius, mineRatio );
+            game.init();
+        </script>
 	</body>
 </html>
