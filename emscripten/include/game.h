@@ -38,16 +38,16 @@
     static int radius = 4;
     static double mine_ratio = 0.3;
 
-    void place_mines( float mine_ratio, Cell &cell );
+    void place_mines( float mine_ratio, Cell *cell );
     void reset_cell( Cell &cell );
     void generate_layout( int radius );
     void setup( int radius );
 
-    void reveal( Cell &cell );
+    void reveal( Cell *cell );
     void flag( Cell &cell );
     void display_clean( int radius );
     void display_flag( Cell &cell );
-    void display_reveal( Cell &cell );
+    void display_reveal( Cell *cell );
     void display_create_cell( Cell &cell );
 
     void cycle_click_mode();

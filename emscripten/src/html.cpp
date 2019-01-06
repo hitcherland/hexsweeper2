@@ -4,8 +4,9 @@
 #include "game.h"
 
 EM_JS(void, create_cell, (int h, int j, int radius), {
-	var points = UTF8ToString( points );
+	var cell = document.createElementNS( "http://www.w3.org/2000/svg", "g" );
 	var polygon = document.createElementNS( "http://www.w3.org/2000/svg", "polygon" );
+    cell.appendChild( polygon );
 
 	var cell_radius = 57.1593533487 / ( 2.0 * radius + 1.0 );
 
@@ -24,18 +25,23 @@ EM_JS(void, create_cell, (int h, int j, int radius), {
 	
 
 	$( polygon )
-		.appendTo( "#game" )
 		.attr({
-			"id": `cell_${h}_${j}`,
 			"data-h": h,
 			"data-j": j,
-			"transform": `matrix(1,0,0,1,${x},${y})`,
 			"points": points
-		});
+		})
+        .appendTo( cell );
+    $( cell )
+        .attr({
+			"id": `cell_${h}_${j}`,
+			"transform": `matrix(1,0,0,1,${x},${y})`,
+            "style": `font-size:${cell_radius}px`
+        })
+        .appendTo( '#game' );
 });
 
 EM_JS(void, toggle_cell_class, ( int h, int j, const char* class_name ), {
-    $( `#cell_${h}_${j}` ).toggleClass( UTF8ToString( class_name ) );
+    $( `#cell_${h}_${j} > polygon` ).toggleClass( UTF8ToString( class_name ) );
 });
 
 EM_JS(void, toggle_id_class, (const char* id, const char* class_name ), {
@@ -50,8 +56,15 @@ EM_JS(void, remove_id_class, (const char* id, const char* class_name ), {
     $( "#" + UTF8ToString( id ) ).removeClass( UTF8ToString( class_name ) );
 });
 
-EM_JS(void, remove_polygons, (), {
-    $( '#game > polygon' ).remove();
+EM_JS(void, remove_groups, (), {
+    $( '#game > g' ).remove();
+});
+
+EM_JS(void, add_mine_count, (int h, int j, int mine_count ), {
+	var text = document.createElementNS( "http://www.w3.org/2000/svg", "text" );
+    $( text )
+        .text( mine_count >= 0 ? mine_count : "!" )
+        .appendTo( `#cell_${h}_${j}` )
 });
 
 EM_BOOL reveal_on_mousedown( int eventType, const EmscriptenMouseEvent *e, void *userData ) {
@@ -79,7 +92,7 @@ EM_BOOL reveal_on_mouseup( int eventType, const EmscriptenMouseEvent *e, void *u
         click_mode = REVEAL; 
     } else if( focused_cell != NULL && click_mode == SELECT) {
         emscripten_vibrate( 40 );
-        reveal( *focused_cell );
+        reveal( focused_cell );
     }
 
     std::cout << "reveal (up): " << e->timestamp << " -> " << dt << " vs. " << LONG_PRESS << " means " << click_mode << std::endl;
@@ -135,17 +148,17 @@ EM_BOOL cell_on_click( int eventType, const EmscriptenMouseEvent *e, void *userD
         return $( document.elementFromPoint( $0, $1 ) ).data( 'j' );
     }, e->clientX, e->clientY);
 
-    Cell cell = *find_cell( h, j );
+    Cell *cell = find_cell( h, j );
 
     focused_cell = NULL;
-    if( cell.revealed ) {
+    if( cell->revealed ) {
         return 0;
     } else if( click_mode == REVEAL ) {
         reveal( cell );
     } else if( click_mode == FLAG ) {
-        flag( cell );
+        flag( *cell );
     } else if( click_mode == SELECT ) {
-        focused_cell = &cell;
+        focused_cell = cell;
     }
 	return 0;
 }
@@ -160,8 +173,9 @@ EM_BOOL cell_on_click_setup( int eventType, const EmscriptenMouseEvent *e, void 
         return $( document.elementFromPoint( $0, $1 ) ).data( 'j' );
     }, e->clientX, e->clientY);
 
-    Cell cell = *find_cell( h, j );
+    Cell *cell = find_cell( h, j );
 	place_mines( 0.3, cell );
+    cell = find_cell( h, j );
     reveal( cell );
 	return 0;
 }
@@ -169,7 +183,7 @@ EM_BOOL cell_on_click_setup( int eventType, const EmscriptenMouseEvent *e, void 
 EM_BOOL hide_options( int eventType, const EmscriptenMouseEvent *e, void *userData ) {
     emscripten_vibrate( 10 );
     EM_ASM({
-        $( '#options' ).hide();
+        $( '#options' ).css( "display", "none");
     });
     return 0;
 }
@@ -177,8 +191,7 @@ EM_BOOL hide_options( int eventType, const EmscriptenMouseEvent *e, void *userDa
 EM_BOOL show_options( int eventType, const EmscriptenMouseEvent *e, void *userData ) {
     emscripten_vibrate( 10 );
     EM_ASM({
-        console.log( "show options" );
-        $( '#options' ).show();
+        $( '#options' ).css( "display", "grid");
     });
     return 0;
 }
@@ -193,15 +206,20 @@ void reset_cell( Cell &cell ) {
 }
 
 void display_clean( int r ) {
-    remove_polygons();
+    remove_groups();
 }
 
 void display_flag( Cell &cell ) {
     toggle_cell_class( cell.h, cell.j, "flagged" );
 }
 
-void display_reveal( Cell &cell ) {
-    toggle_cell_class( cell.h, cell.j, cell.is_mine ? "mine" : "free" );
+void display_reveal( Cell *cell ) {
+    toggle_cell_class( cell->h, cell->j, cell->is_mine ? "mine" : "free" );
+    if( !cell->is_mine ) {
+        add_mine_count( cell->h, cell->j, cell->mine_count );
+    } else {
+        add_mine_count( cell->h, cell->j, -1 );
+    }
 }
 
 void display_create_cell( Cell &cell ) {

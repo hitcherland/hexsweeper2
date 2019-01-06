@@ -19,6 +19,8 @@ body {
     grid-template-columns: 2rem 1fr 2rem;
     grid-template-rows: 2rem 1fr 2rem;
     justify-content: center;
+    grid-column-gap: 0.1rem;
+    grid-row-gap: 0.1rem;
 }
 
 .center {
@@ -62,9 +64,9 @@ svg#game {
 
 .g-l, .g-tl, .g-ml, .g-bl { grid-column: 1; }
 .g-c, .g-tc, .g-mc, .g-bc { grid-column: 2; }
-.g-r, .g-tl, .g-mr, .g-br { grid-column: 3; }
+.g-r, .g-tr, .g-mr, .g-br { grid-column: 3; }
 
-#title {
+.title {
 	text-align: center;
 	color: white;
 	font-family: monospace;
@@ -74,26 +76,15 @@ svg#game {
 #reveal.selected { background: #0f0; }
 #flag.selected { background: #ff0; }
 
-svg {
-	background: transparent;
-	cursor:pointer;
-}
-
-svg > path { fill: white; }
-svg:hover > path { fill: red; }
-
 .button {
-    background: white;
     color: black;
+    background: white;
+    font-weight: bold;
     line-height: 2rem;
     border-radius: 0.2em;
-    margin: 0 0.2rem;
+    margin: 0;
     box-sizing: border-box;
     text-align: center;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-    -moz-user-select: none;
 	cursor:pointer;
 }
 
@@ -101,6 +92,7 @@ svg:hover > path { fill: red; }
 	fill: black;
 	stroke: white;
 	stroke-width: 0.05vmin;
+    cursor: pointer;
 }
 
 #game polygon:hover { fill: #222; }
@@ -110,22 +102,16 @@ svg:hover > path { fill: red; }
 #game polygon.free:hover { fill: #0d0; }
 #game polygon.mine { fill: #f00; }
 #game polygon.mine:hover { fill: #d00; }
+#game text { 
+    font-family: monospace; 
+    font-size: inherit;
+    transform: translate( -0.5ex, 0.6ex );
+}
 
 #options {
     display: none;
-}
-
-#options .layout {
-    position: absolute;
-    width: 100vw;
-    background: rgba(0,0,0,0.8);
-    min-height: 100vh;
     z-index: 1;
-    color: white;
-    justify-items: center;
-    align-items: center;
-	text-align: center;
-    grid-template-rows: 2rem 6rem 6rem;
+    background: rgba(0,0,0,0.9);;
 }
 
 #options input {
@@ -139,17 +125,6 @@ svg:hover > path { fill: red; }
 
 #options .description {
     font-size: 80%;
-}
-
-#options .layout > * {
-    width: 80%;
-    border: 1px solid white;
-    padding: 0rem 1rem 1rem 1rem;
-    box-sizing: border-box;
-    margin-left: 10%;
-    margin-right: 10%;
-    margin-bottom: 1rem;
-    background: black;
 }
 
 #options h1 {
@@ -167,18 +142,6 @@ svg:hover > path { fill: red; }
     margin-bottom: 1rem;
 }
 
-#options .hide {
-    position: absolute;
-    top: 0;
-    right: 0;
-    color: white;
-    font-weight: bold;
-    font-size: 2rem;
-    padding-left: 1rem;
-    z-index: 2;
-    cursor: pointer;
-}
-
 #options .hide:hover {
     color: #aaa;
 }
@@ -193,4 +156,24 @@ svg:hover > path { fill: red; }
 
 .pair > * {
     grid-row: 1;
+}
+
+#show_options, #reload {
+    width: 2rem;
+    height: 2rem;
+}
+
+#options .option {
+    color: white;
+}
+
+#options .title {
+    background: rgba(0,0,0,0.9);
+}
+
+.button, .title {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
 }
